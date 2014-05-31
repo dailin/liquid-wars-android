@@ -25,7 +25,7 @@ import android.view.Window;
 
 public class InstructionsActivity extends Activity {
     private static final String instructions1 = "Aim:\n Convert the enemy's army to your own colour to win.";
-    private static final String instructions2 = "How to play:\n Wherever you touch the screen your army will run to.\n Use up to five fingers to guide your army.\n Enemy liquid will be converted to your own when they collide.\n Try to surround the enemy for the best effect.";
+    private static final String instructions2 = "How to play:\n Wherever you touch the screen your army will run to.\n Use up to five fingers to guide your army.\n Enemy liquid will be converted to your own when they collide.";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
