@@ -37,8 +37,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(surfaceCallbacks != null)
+        if(surfaceCallbacks != null) {
             surfaceCallbacks.onTouch(event);
+        }
 
         return true;
     }

@@ -26,9 +26,11 @@ public class PlayerHistory {
     //[historyIndex][player number][finger]
 
     public PlayerHistory() {
-        for(int p = 0; p < 6; p++)
-            for(int i = 0; i < 5; i++)
+        for(int p = 0; p < 6; p++) {
+            for(int i = 0; i < 5; i++) {
                 playerY[historyIndex][p][i] = playerX[historyIndex][p][i] = -1;
+            }
+        }
         playerX[historyIndex][0][0] = 20;
         playerY[historyIndex][0][0] = 20;
         playerX[historyIndex][1][0] = 20;
@@ -45,8 +47,9 @@ public class PlayerHistory {
 
     public void savePlayerPositions(short[][] xs, short[][] ys) {
         historyIndex++;
-        if(historyIndex >= MAX_HISTORY)
+        if(historyIndex >= MAX_HISTORY) {
             historyIndex = 0;
+        }
         for(int p = 0; p < 6; p++) {
             for(int i = 0; i < 5; i++) {
                 playerX[historyIndex][p][i] = xs[p][i];
@@ -75,11 +78,12 @@ public class PlayerHistory {
     }
 
     public int getHistoryIndex(int stepsBack) {
-        if((stepsBack >= MAX_HISTORY) || (stepsBack < 0))
+        if((stepsBack >= MAX_HISTORY) || (stepsBack < 0)) {
             return -1;
-        if(stepsBack <= historyIndex)
+        } if(stepsBack <= historyIndex) {
             return (historyIndex - stepsBack);
-        else
+        } else {
             return (MAX_HISTORY - (stepsBack - historyIndex));
+        }
     }
 }

@@ -80,10 +80,11 @@ public class ClientGameSetupActivity extends Activity implements Client.ClientCa
             public void run() {
                 InputStream is = null;
                 try {
-                    if(StaticBits.map == -1)
+                    if(StaticBits.map == -1) {
                         is = getAssets().open("maps/random-map.png");
-                    else
+                    } else {
                         is = getAssets().open("maps/" + StaticBits.map +"-image.png");
+                    }
                 } catch(IOException e) {
                     try {
                         is = getAssets().open("maps/" + StaticBits.map +"-map.png");

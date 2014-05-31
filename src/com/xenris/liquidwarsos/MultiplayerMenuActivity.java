@@ -41,7 +41,7 @@ public class MultiplayerMenuActivity extends Activity {
     private ArrayAdapter serverList;
     private static EditText ipEditText;
     private AlertDialog searchAlertDialog;
-    ArrayList<ServerFinder.ServerInfo> serverInfoList;
+    private ArrayList<ServerFinder.ServerInfo> serverInfoList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

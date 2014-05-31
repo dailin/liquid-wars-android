@@ -58,27 +58,32 @@ public class Client extends Thread {
             InputStream is = socket.getInputStream();
             while(true) {
                 int count = is.read();
-                if(count == -1)
+                if(count == -1) {
                     break;
+                }
                 is.read(buffer, 0, count);
                 inIB.get(intBuffer);
                 inIB.rewind();
-                if(clientCallbacks != null)
+                if(clientCallbacks != null) {
                     clientCallbacks.onServerMessageReceived(count/4, intBuffer);
+                }
             }
         } catch(UnknownHostException u) {
-            if((clientCallbacks != null) && (!destroyCalled))
+            if((clientCallbacks != null) && (!destroyCalled)) {
                 clientCallbacks.onServerConnectionFailed(ip);
+            }
             destroy();
             return;
         } catch(IOException e) {
-            if((clientCallbacks != null) && (!destroyCalled))
+            if((clientCallbacks != null) && (!destroyCalled)) {
                 clientCallbacks.onServerConnectionFailed(ip);
+            }
             destroy();
             return;
         }
-        if(clientCallbacks != null)
+        if(clientCallbacks != null) {
             clientCallbacks.onServerConnectionClosed(ip);
+        }
         destroy();
     }
 

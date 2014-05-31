@@ -75,29 +75,35 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
     @Override
     public void onPause() {
         super.onPause();
-        if(myGLSurfaceView != null)
+        if(myGLSurfaceView != null) {
             myGLSurfaceView.onPause();
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if(myGLSurfaceView != null)
+        if(myGLSurfaceView != null) {
             myGLSurfaceView.onResume();
+        }
     }
 
     @Override
     public void onDestroy() {
-        if(!isFinishing())
+        if(!isFinishing()) {
             finish();
+        }
         super.onDestroy();
-        if(StaticBits.client != null)
+        if(StaticBits.client != null) {
             StaticBits.client.setCallbacks(StaticBits.clientGameSetupActivity);
-        if(myGLSurfaceView != null)
+        }
+        if(myGLSurfaceView != null) {
             myGLSurfaceView.onPause();
+        }
         running = false;
-        if(dialog != null)
+        if(dialog != null) {
             dialog.dismiss();
+        }
     }
 
     @Override
@@ -112,8 +118,9 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
             checkIfLost();
             try { Thread.sleep(50); } catch (InterruptedException ie) { }
         }
-        while(usingNativeStateLock)
+        while(usingNativeStateLock) {
             try { Thread.sleep(3); } catch (InterruptedException ie) { }
+        }
         NativeInterface.destroyGame();
         NativeInterface.uninit();
         StaticBits.client.send(StaticBits.CLIENT_EXIT, 0);
@@ -121,15 +128,17 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
     }
 
     private void checkIfLost() {
-        if(lostGame)
+        if(lostGame) {
             return;
+        }
         if(NativeInterface.teamScore(StaticBits.team) == 0) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     lostGame = true;
-                    if(dialog != null)
+                    if(dialog != null) {
                         dialog.dismiss();
+                    }
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setMessage("You Lose");
                     dialog = builder.show();
@@ -145,8 +154,9 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
     }
 
     private void checkForWinner() {
-        if(gameFinished)
+        if(gameFinished) {
             return;
+        }
         for(int i = 0; i < 6; i++) {
             if(NativeInterface.teamScore(i) == StaticBits.NUMBER_OF_TEAMS*StaticBits.dotsPerTeam) {
                 final int p = i;
@@ -154,13 +164,15 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
                     @Override
                     public void run() {
                         gameFinished = true;
-                        if(dialog != null)
+                        if(dialog != null) {
                             dialog.dismiss();
+                        }
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        if(p == StaticBits.team)
+                        if(p == StaticBits.team) {
                             builder.setMessage("You Win!");
-                        else
+                        } else {
                             builder.setMessage(Util.teamToNameString(p) + " Wins");
+                        }
                         dialog = builder.show();
                         TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
                         messageText.setGravity(Gravity.CENTER);
@@ -187,11 +199,13 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
 
     @Override
     public void onTouch(MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_MOVE)
-            if(touchReduction-- != 0)
+        if(event.getAction() == MotionEvent.ACTION_MOVE) {
+            if(touchReduction-- != 0) {
                 return;
-            else
+            } else {
                 touchReduction = 5;
+            }
+        }
 
         final int count = event.getPointerCount();
         for(int i = 0; i < 5; i++) {
@@ -222,8 +236,9 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
                     running = false;
                 }
             };
-            if(dialog != null)
+            if(dialog != null) {
                 dialog.dismiss();
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage("Back to menu?");
             builder.setPositiveButton("Yes", clicker);
@@ -250,8 +265,9 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
                 }
             }
         } else if(args[0] == StaticBits.CLIENT_READY_QUERY) {
-            if(running)
+            if(running) {
                 StaticBits.client.send(StaticBits.CLIENT_READY, 0);
+            }
         } else if(args[0] == StaticBits.KILL_GAME) {
             ToastOnUiThread("Game canceled");
             running = false;
@@ -296,13 +312,15 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
             @Override
             public void run() {
                 gameFinished = true;
-                if(dialog != null)
+                if(dialog != null) {
                     dialog.dismiss();
+                }
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                if(winningTeam == StaticBits.team)
+                if(winningTeam == StaticBits.team) {
                     builder.setMessage("Out of time! You win!");
-                else
+                } else {
                     builder.setMessage("Out of time! " + Util.teamToNameString(winningTeam) + " wins!");
+                }
                 dialog = builder.show();
                 TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
                 messageText.setTextColor(Util.teamToColour(winningTeam));
@@ -327,14 +345,16 @@ public class GameClientActivity extends Activity implements Client.ClientCallbac
     }
 
     private void stepGame(int speed) {
-        if(usingNativeStateLock)
+        if(usingNativeStateLock) {
             return;
+        }
         usingNativeStateLock = true;
         for(int i = 0; i < 10; i++) {
             long previousTime = System.nanoTime();
             NativeInterface.stepDots();
-            if(speed == StaticBits.REGULATED_STEP)
+            if(speed == StaticBits.REGULATED_STEP) {
                 Util.regulateSpeed(previousTime, StaticBits.GAME_SPEED);
+            }
         }
         usingNativeStateLock = false;
         gameStep++;

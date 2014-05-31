@@ -241,13 +241,15 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
     }
 
     private void waitForEveryoneToBeReady() {
-        if((StaticBits.server == null) || (ready == null))
+        if((StaticBits.server == null) || (ready == null)) {
             return;
+        }
 
         int countdown = 10;
         while(true) {
-            if(ready[0] && ready[1] && ready[2] && ready[3] && ready[4] && ready[5])
+            if(ready[0] && ready[1] && ready[2] && ready[3] && ready[4] && ready[5]) {
                 break;
+            }
             if(countdown-- < 0) {
                 StaticBits.server.sendToAll(StaticBits.CLIENT_READY_QUERY, 0);
                 countdown = 10;
@@ -258,10 +260,11 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
 
     private void createReadyList() {
         for(int i = 0; i < 6; i++) {
-            if((StaticBits.teams[i] == StaticBits.AI_PLAYER) || (StaticBits.teams[i] == 0))
+            if((StaticBits.teams[i] == StaticBits.AI_PLAYER) || (StaticBits.teams[i] == 0)) {
                 ready[i] = true;
-            else
+            } else {
                 ready[i] = false;
+            }
         }
 
     }
@@ -277,8 +280,9 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
 
     private void resendAnyLostSteps() {
         int[] data = new int[3 + 6 * 5 * 2];
-        if(playerWithMissedStepsId == -1)
+        if(playerWithMissedStepsId == -1) {
             return;
+        }
         data[0] = StaticBits.STEP_GAME;
         data[1] = StaticBits.FAST_STEP;
         for(int i = playerWithMissedStepsStep; i <= gameStep; i++) {
@@ -290,8 +294,9 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
     }
 
     private void waitForSlowClients() {
-        if(playerWithMissedStepsId != -1)
+        if(playerWithMissedStepsId != -1) {
             return;
+        }
         int biggestIndex = 0;
         int biggestValue = 0;
         for(int i = 0; i < 6; i++) {
@@ -303,8 +308,9 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
         biggestValue = biggestValue*biggestValue*biggestValue;
         for(int i = 0; i < biggestValue; i++) {
             try { Thread.sleep(1); } catch (InterruptedException ie) { }
-            if(clientLags[biggestIndex] < 4)
+            if(clientLags[biggestIndex] < 4) {
                 break;
+            }
         }
     }
 
@@ -357,8 +363,9 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
                     running = false;
                 }
             };
-            if(dialog != null)
+            if(dialog != null) {
                 dialog.dismiss();
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage("Game is still in play! Back to menu?");
             builder.setPositiveButton("Yes", clicker);
@@ -377,8 +384,9 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
     @Override
     public void onClientMessageReceived(int id, int argc, int[] args) {
         if(args[0] == StaticBits.RESEND_STEPS) {
-            if(playerWithMissedStepsId == -1)
+            if(playerWithMissedStepsId == -1) {
                 noteMissedSteps(id, args[1]);
+            }
         } else if(args[0] == StaticBits.PLAYER_POSITION_DATA) {
             final int p = clientIdToPlayerNumber(id);
             for(int i = 0; i < 5; i++) {
@@ -394,8 +402,9 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
             ready[p] = true;
         } else if(args[0] == StaticBits.CLIENT_EXIT) {
             final int p = clientIdToPlayerNumber(id);
-            if((p >= 0) && (p < 6))
+            if((p >= 0) && (p < 6)) {
                 clientLags[p] = 0;
+            }
         }
     }
 
@@ -406,8 +415,9 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
     @Override
     public void onClientDisconnected(int id) {
         final int p = clientIdToPlayerNumber(id);
-        if((p >= 0) && (p < 6))
+        if((p >= 0) && (p < 6)) {
             clientLags[p] = 0;
+        }
         StaticBits.multiplayerGameSetupActivity.onClientDisconnected(id);
         ready[p] = true;
     }
@@ -418,9 +428,11 @@ public class GameServerActivity extends Activity implements Server.ServerCallbac
     }
 
     private int clientIdToPlayerNumber(int id) {
-        for(int i = 0; i < 6; i++)
-            if(StaticBits.teams[i] == id)
+        for(int i = 0; i < 6; i++) {
+            if(StaticBits.teams[i] == id) {
                 return i;
+            }
+        }
         return -1;
     }
 }

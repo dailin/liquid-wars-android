@@ -74,26 +74,30 @@ public class GameActivity extends Activity implements Runnable, MyGLSurfaceView.
     public void onPause() {
         super.onPause();
         paused = true;
-        if(myGLSurfaceView != null)
+        if(myGLSurfaceView != null) {
             myGLSurfaceView.onPause();
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         paused = false;
-        if(myGLSurfaceView != null)
+        if(myGLSurfaceView != null) {
             myGLSurfaceView.onResume();
+        }
     }
 
     @Override
     public void onDestroy() {
-        if(!isFinishing())
+        if(!isFinishing()) {
             finish();
+        }
         super.onDestroy();
         running = false;
-        if(dialog != null)
+        if(dialog != null) {
             dialog.dismiss();
+        }
     }
 
     @Override
@@ -114,8 +118,9 @@ public class GameActivity extends Activity implements Runnable, MyGLSurfaceView.
                 checkTimeout(timeDiff);
                 checkForWinner();
                 checkIfLost();
-                if(aiStartDelay-- < 0)
+                if(aiStartDelay-- < 0) {
                     updateAI();
+                }
             } else {
                 try { Thread.sleep(100); } catch (InterruptedException ie) { }
             }
@@ -138,13 +143,15 @@ public class GameActivity extends Activity implements Runnable, MyGLSurfaceView.
                     for(int i = 0; i < 6; i++) {
                         int score = NativeInterface.teamScore(winningTeam);
                         int temp = NativeInterface.teamScore(i);
-                        if(temp > score)
+                        if(temp > score) {
                             winningTeam = i;
+                        }
                     }
-                    if(winningTeam == StaticBits.team)
+                    if(winningTeam == StaticBits.team) {
                         builder.setMessage("Out of time! You win!");
-                    else
+                    } else {
                         builder.setMessage("Out of time! " + Util.teamToNameString(winningTeam) + " wins!");
+                    }
                     dialog = builder.show();
                     TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
                     messageText.setTextColor(Util.teamToColour(winningTeam));
@@ -158,15 +165,17 @@ public class GameActivity extends Activity implements Runnable, MyGLSurfaceView.
     }
 
     private void checkIfLost() {
-        if(lostGame)
+        if(lostGame) {
             return;
+        }
         if(NativeInterface.teamScore(StaticBits.team) == 0) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     lostGame = true;
-                    if(dialog != null)
+                    if(dialog != null) {
                         dialog.dismiss();
+                    }
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setMessage("You Lose");
                     dialog = builder.show();
@@ -182,8 +191,9 @@ public class GameActivity extends Activity implements Runnable, MyGLSurfaceView.
     }
 
     private void checkForWinner() {
-        if(gameFinished)
+        if(gameFinished) {
             return;
+        }
         for(int i = 0; i < 6; i++) {
             if(NativeInterface.teamScore(i) == StaticBits.NUMBER_OF_TEAMS*StaticBits.dotsPerTeam) {
                 final int p = i;
@@ -191,13 +201,15 @@ public class GameActivity extends Activity implements Runnable, MyGLSurfaceView.
                     @Override
                     public void run() {
                         gameFinished = true;
-                        if(dialog != null)
+                        if(dialog != null) {
                             dialog.dismiss();
+                        }
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        if(p == StaticBits.team)
+                        if(p == StaticBits.team) {
                             builder.setMessage("You Win!");
-                        else
+                        } else {
                             builder.setMessage(Util.teamToNameString(p) + " Wins");
+                        }
                         dialog = builder.show();
                         TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
                         messageText.setGravity(Gravity.CENTER);
@@ -235,8 +247,9 @@ public class GameActivity extends Activity implements Runnable, MyGLSurfaceView.
     }
 
     private void setPlayerPositions() {
-        for(int i = 0; i < 6; i++)
+        for(int i = 0; i < 6; i++) {
             NativeInterface.setPlayerPosition(i, xs[i], ys[i]);
+        }
     }
 
     @Override
@@ -268,8 +281,9 @@ public class GameActivity extends Activity implements Runnable, MyGLSurfaceView.
                     finish();
                 }
             };
-            if(dialog != null)
+            if(dialog != null) {
                 dialog.dismiss();
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage("Back to menu?");
             builder.setPositiveButton("Yes", clicker);

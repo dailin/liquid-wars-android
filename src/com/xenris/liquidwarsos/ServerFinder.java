@@ -115,8 +115,9 @@ public class ServerFinder {
     }
 
     public static void stopSearching() {
-        if(datagramSocket != null)
+        if(datagramSocket != null) {
             datagramSocket.close();
+        }
         datagramSocket = null;
         isSearching = false;
     }

@@ -78,8 +78,9 @@ public class MultiplayerGameSetupActivity extends Activity implements OnItemSele
         super.onResume();
         StaticBits.newSeed();
         if(StaticBits.gameWasDisconnected) {
-            if(StaticBits.client != null)
+            if(StaticBits.client != null) {
                 StaticBits.client.destroy();
+            }
             StaticBits.client = null;
             myID = 0;
             for(int i = 1; i < 6; i++)
@@ -179,14 +180,16 @@ public class MultiplayerGameSetupActivity extends Activity implements OnItemSele
         if(id == R.id.next_button) {
             int pos = mapSpinner.getSelectedItemPosition();
             pos += 20;
-            if(pos > StaticBits.NUMBER_OF_MAPS)
+            if(pos > StaticBits.NUMBER_OF_MAPS) {
                 pos = StaticBits.NUMBER_OF_MAPS;
+            }
             mapSpinner.setSelection(pos);
         } else if(id == R.id.previous_button) {
             int pos = mapSpinner.getSelectedItemPosition();
             pos -= 20;
-            if(pos < 0)
+            if(pos < 0) {
                 pos = 0;
+            }
             mapSpinner.setSelection(pos);
         }
         return true;
@@ -195,16 +198,18 @@ public class MultiplayerGameSetupActivity extends Activity implements OnItemSele
     public void nextMap(View view) {
         int pos = mapSpinner.getSelectedItemPosition();
         pos++;
-        if(pos > StaticBits.NUMBER_OF_MAPS)
+        if(pos > StaticBits.NUMBER_OF_MAPS) {
             pos = StaticBits.NUMBER_OF_MAPS;
+        }
         mapSpinner.setSelection(pos);
     }
 
     public void previousMap(View view) {
         int pos = mapSpinner.getSelectedItemPosition();
         pos--;
-        if(pos < 0)
+        if(pos < 0) {
             pos = 0;
+        }
         mapSpinner.setSelection(pos);
     }
 
@@ -238,10 +243,11 @@ public class MultiplayerGameSetupActivity extends Activity implements OnItemSele
     private void refreshMapImage() {
         InputStream is = null;
         try {
-            if(StaticBits.map == -1)
+            if(StaticBits.map == -1) {
                 is = getAssets().open("maps/random-map.png");
-            else
+            } else {
                 is = getAssets().open("maps/" + StaticBits.map +"-image.png");
+            }
         } catch(IOException e) {
             try {
                 is = getAssets().open("maps/" + StaticBits.map +"-map.png");
@@ -255,14 +261,16 @@ public class MultiplayerGameSetupActivity extends Activity implements OnItemSele
     @Override
     public void onClientMessageReceived(int id, int argc, int[] args) {
          if(args[0] == StaticBits.SEND_VERSION_CODE) {
-            if(args[1] != StaticBits.VERSION_CODE)
+            if(args[1] != StaticBits.VERSION_CODE) {
                 checkVersionCompatibility(args[1]);
+            }
         }
     }
 
     private void checkVersionCompatibility(int v) {
-        if(StaticBits.VERSION_CODE < v)
+        if(StaticBits.VERSION_CODE < v) {
             toast("Liquid Wars needs updating.", Toast.LENGTH_LONG);
+        }
     }
 
     @Override

@@ -23,9 +23,11 @@ import android.content.Context;
 
 public class Util {
     public static void loadPlayerInitialPositions(short[][] xs, short[][] ys) {
-        for(int p = 0; p < 6; p++)
-            for(int i = 0; i < 5; i++)
+        for(int p = 0; p < 6; p++) {
+            for(int i = 0; i < 5; i++) {
                 xs[p][i] = ys[p][i] = -1;
+            }
+        }
         final int ydis = 50;
         final int xdis = 20;
         xs[0][0] = xdis;
@@ -109,7 +111,11 @@ public class Util {
         if(milliDelay < 0)
             milliDelay = 0;
 
-        try { Thread.sleep(milliDelay, (int)nanoDelay); } catch (InterruptedException ie) { }
+        try {
+            Thread.sleep(milliDelay, (int)nanoDelay);
+        } catch (InterruptedException ie) {
+            // Don't care very much if this fails occasionally.
+        }
     }
 
     public static void makeDialogCancelableIn(final Dialog dialog, int millis) {
