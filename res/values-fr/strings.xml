@@ -4,5 +4,5 @@
     <string name="change_bluetooth_name">Change bluetooth name:</string>
     <string name="done">Done</string>
     <string name="cancel">Cancel</string>
-    <string name="searching">Searching...</string>
+    <string name="searching">Searching&#8230;</string>
 </resources>
