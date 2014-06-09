@@ -17,23 +17,35 @@
 
 package com.xenris.liquidwarsos;
 
-import java.io.*;
+import android.graphics.Color;
+import java.util.Random;
 
-public class Util {
-    public static void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) { }
+public class Colour {
+    private static final Random gRandom = new Random();
+    private static final float gSaturation = 0.7f;
+    private static final float gValue = 0.85f;
+    private static final int[] gColourWheel;
+
+    static {
+        gColourWheel = new int[7];
+
+        for(int i = 0; i < 7; i++) {
+            final float hue = 360.0f - ((float)i / 6.0f) * 360.0f;
+            gColourWheel[i] = hueToColour(hue);
+        }
     }
 
-    public static boolean close(Closeable closeable) {
-        if(closeable != null) {
-            try {
-                closeable.close();
-                return true;
-            } catch (IOException e) { }
-        }
+    public static int randomColour() {
+        final int hue = gRandom.nextInt(360);
+        return hueToColour(hue);
+    }
 
-        return false;
+    public static int[] colourWheel() {
+        return gColourWheel;
+    }
+
+    public static int hueToColour(float hue) {
+        final float[] hsv = {hue, gSaturation, gValue};
+        return Color.HSVToColor(hsv);
     }
 }

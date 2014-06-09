@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+android:background="#000">
+
+    <!--Top bar.-->
+    <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="0dp"
+    android:layout_weight="20"
+    android:gravity="center">
+
+        <!--Public name. XXX Is there a better place to put this?-->
+        <TextView
+        android:id="@+id/public_name_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="80dp"
+        android:text=""
+        android:textSize="20dp"
+        android:layout_margin="10dp"
+        android:visibility="visible"/>
+
+        <!--List of players.-->
+        <com.xenris.liquidwarsos.PlayerListView
+        android:id="@+id/player_list_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+    </LinearLayout>
+
+    <!--Horizontal line XXX Not sure if this should be here. Might be messy and/or ugly.-->
+    <View
+    android:layout_width="fill_parent"
+    android:layout_height="1dp"
+    android:layout_margin="0dp"
+    android:background="#999"/>
+
+    <!--Body-->
+    <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="0dp"
+    android:layout_weight="80">
+
+        <!--Body left-->
+        <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="40">
+
+            <!--Player's colour-->
+            <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/player_colour_view"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_margin="20dp"
+            android:background="#000"
+            android:layout_weight="60"
+            android:onClick="onColourClicked">
+            </LinearLayout>
+
+            <!--Bottom left container-->
+            <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="40"
+            android:gravity="center">
+
+                <!--Ready button-->
+                <ToggleButton
+                android:id="@+id/read_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:onClick="onReadyClicked"
+                android:textOn="Ready"
+                android:textOff="Not Ready"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!--Body right-->
+        <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="60">
+
+            <!--Map image XXX Should this be wrap_content? Need correct aspect ratio.-->
+            <ImageView
+            android:id="@+id/map_imageview"
+            android:layout_margin="20dp"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:src="@+drawable/map_10"
+            android:onClick="onMapClicked"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

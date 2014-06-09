@@ -19,6 +19,7 @@ package com.xenris.liquidwarsos;
 
 import android.content.res.AssetManager;
 
+// TODO Replace with Simulation.
 public class NativeInterface {
     static {
         System.loadLibrary("nativeinterface");

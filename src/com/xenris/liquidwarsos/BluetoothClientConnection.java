@@ -17,23 +17,29 @@
 
 package com.xenris.liquidwarsos;
 
+import android.bluetooth.BluetoothSocket;
 import java.io.*;
 
-public class Util {
-    public static void sleep(long millis) {
+public class BluetoothClientConnection extends ClientConnection {
+    private BluetoothSocket gBluetoothSocket;
+
+    public BluetoothClientConnection(BluetoothSocket bluetoothSocket) {
+        gBluetoothSocket = bluetoothSocket;
+
         try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) { }
+            final OutputStream outputStream = bluetoothSocket.getOutputStream();
+            final InputStream inputStream = bluetoothSocket.getInputStream();
+
+            init(inputStream, outputStream);
+        } catch (IOException e) {
+            close();
+            return;
+        }
     }
 
-    public static boolean close(Closeable closeable) {
-        if(closeable != null) {
-            try {
-                closeable.close();
-                return true;
-            } catch (IOException e) { }
-        }
-
-        return false;
+    @Override
+    public void close() {
+        Util.close(gBluetoothSocket);
+        super.close();
     }
 }

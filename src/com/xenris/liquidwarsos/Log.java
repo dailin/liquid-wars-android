@@ -17,23 +17,10 @@
 
 package com.xenris.liquidwarsos;
 
-import java.io.*;
+public class Log {
+    public static final String LOG = "LiquidWarsMessage";
 
-public class Util {
-    public static void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) { }
-    }
-
-    public static boolean close(Closeable closeable) {
-        if(closeable != null) {
-            try {
-                closeable.close();
-                return true;
-            } catch (IOException e) { }
-        }
-
-        return false;
+    public static void message(String s) {
+        android.util.Log.i(LOG, s);
     }
 }

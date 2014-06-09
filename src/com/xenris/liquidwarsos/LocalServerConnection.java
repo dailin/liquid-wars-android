@@ -19,21 +19,8 @@ package com.xenris.liquidwarsos;
 
 import java.io.*;
 
-public class Util {
-    public static void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) { }
-    }
-
-    public static boolean close(Closeable closeable) {
-        if(closeable != null) {
-            try {
-                closeable.close();
-                return true;
-            } catch (IOException e) { }
-        }
-
-        return false;
+public class LocalServerConnection extends ServerConnection {
+    public LocalServerConnection(InputStream inputStream, OutputStream outputStream) {
+        super(inputStream, outputStream);
     }
 }

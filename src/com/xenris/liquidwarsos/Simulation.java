@@ -17,23 +17,6 @@
 
 package com.xenris.liquidwarsos;
 
-import java.io.*;
-
-public class Util {
-    public static void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) { }
-    }
-
-    public static boolean close(Closeable closeable) {
-        if(closeable != null) {
-            try {
-                closeable.close();
-                return true;
-            } catch (IOException e) { }
-        }
-
-        return false;
-    }
+public class Simulation {
+    // TODO This is where the native c game simulation will go.
 }

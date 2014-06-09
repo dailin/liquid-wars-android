@@ -17,36 +17,32 @@
 
 package com.xenris.liquidwarsos;
 
-import android.app.Activity;
+import android.app.Dialog;
+import android.content.*;
 import android.os.Bundle;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.view.View;
 import android.view.Window;
-import android.content.Intent;
 
-public class MainMenuActivity extends Activity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+public class ColourPickerDialog extends Dialog implements ColourPickerView.Callbacks {
+    private ColourPickerListener gListener;
+    private int gInitialColour;
 
+    public ColourPickerDialog(Context context, int initialColour, int dialogSize, ColourPickerListener listener) {
+        super(context);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        setContentView(R.layout.main_menu);
+        gListener = listener;
+        gInitialColour = initialColour;
+        setContentView(new ColourPickerView(this, context, initialColour));
+        getWindow().setLayout(dialogSize, dialogSize);
+        setCanceledOnTouchOutside(true);
     }
 
-    public void singlePlayerMenu(View view) {
-//        Intent intent = new Intent(this, SinglePlayerGameSetupActivity.class);
-//        startActivity(intent);
+    @Override
+    public void onSelect(int colour) {
+        dismiss();
+        gListener.onSelect(this, colour);
     }
 
-    public void multiplayerMenu(View view) {
-            Intent intent = new Intent(this, MultiplayerMenuActivity.class);
-            startActivity(intent);
-    }
-
-    public void instructions(View view) {
-        Intent intent = new Intent(this, InstructionsActivity.class);
-        startActivity(intent);
+    public interface ColourPickerListener {
+        public void onSelect(ColourPickerDialog dialog, int colour);
     }
 }

@@ -17,137 +17,97 @@
 
 package com.xenris.liquidwarsos;
 
-import java.lang.Thread;
-import java.lang.Runnable;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import android.bluetooth.BluetoothSocket;
 import java.util.ArrayList;
-import java.io.IOException;
-import android.content.Context;
+import java.io.*;
 
-public class Server implements SubServer.SubServerCallbacks, Runnable {
-    public ServerCallbacks serverCallbacks;
-    private int port;
-    private ServerSocket serverSocket;
-    private ArrayList<SubServer> subServers;
-    private Context context;
-    private boolean accepting = false;
-    private static int MAX_CLIENTS = 5;
-    public static int SET_MAP_IMAGE_COMMAND = 0x56;
-    public static int TEAM_LIST_COMMAND = 0x57;
-    public static int REQUEST_CHANGE_TEAM_COMMAND = 0x58;
-    public static int START_GAME_COMMAND = 0x59;
+public class Server {
+    private Game gGame = new Game();
+    private ArrayList<ClientConnection> gClientConnections = new ArrayList<ClientConnection>();
 
-    public Server(Context context, int port) {
-        this.context = context;
-        this.serverCallbacks = (ServerCallbacks)context;
-        this.port = port;
-        subServers = new ArrayList<SubServer>();
+    public Server() {
+        GameThread gameThread = new GameThread();
+        gameThread.start();
     }
 
-    public void startAccepting() {
-        if(!accepting)
-            new Thread(this).start();
-    }
+    public ServerConnection createLocalConnection() {
+        // s = for server
+        // c = for client
+        final PipedOutputStream oss = new PipedOutputStream();
+        final PipedOutputStream osc = new PipedOutputStream();
+        final PipedInputStream iss = new PipedInputStream();
+        final PipedInputStream isc = new PipedInputStream();
 
-    @Override
-    public void run() {
         try {
-            serverSocket = new ServerSocket(port);
-            int id = 1;
-            accepting = true;
-            while(accepting) {
-                Socket socket = serverSocket.accept();
-                if(subServers.size() < MAX_CLIENTS) {
-                    SubServer subServer = new SubServer(this, socket, id);
-                    subServer.start();
-                    subServers.add(subServer);
-                    if(serverCallbacks != null)
-                        serverCallbacks.onClientConnected(id);
-                    id++;
-                } else {
-                    socket.close();
-                }
+            oss.connect(isc);
+            iss.connect(osc);
+        } catch (IOException e) {
+            return null;
+        }
+
+        addClientConnection(new LocalClientConnection(iss, oss));
+
+        return new LocalServerConnection(isc, osc);
+    }
+
+    public void addClientConnection(ClientConnection clientConnection) {
+        synchronized (gClientConnections) {
+            gClientConnections.add(clientConnection);
+        }
+
+        Player player = new Player(clientConnection.getId());
+        gGame.addPlayer(player);
+    }
+
+    public void removeClientConnection(ClientConnection clientConnection) {
+        if(clientConnection != null) {
+            synchronized (gClientConnections) {
+                gClientConnections.remove(clientConnection);
             }
-        } catch(UnknownHostException u) { } catch(IOException e) { }
-        serverSocket = null;
-        accepting = false;
+
+            gGame.removePlayer(clientConnection.getId());
+        }
     }
 
-    @Override
-    public void onSubServerMessageReceived(int id, int argc, int[] args) {
-        if(serverCallbacks != null)
-            serverCallbacks.onClientMessageReceived(id, argc, args);
-    }
-
-    @Override
-    public void onSubServerDisconnect(int id) {
-        synchronized(subServers) {
-            for(SubServer subServer : subServers) {
-                if(subServer.id == id) {
-                    subServers.remove(subServer);
+    // XXX Should this be in Game?
+    public class GameThread extends Thread {
+        @Override
+        public void run() {
+            // Wait for one minute for someone to join.
+            int counter = 60 * 10;
+            while(counter > 0) {
+                if(gClientConnections.size() > 0) {
                     break;
+                } else {
+                    Util.sleep(100);
                 }
             }
-        }
-        if(serverCallbacks != null)
-            serverCallbacks.onClientDisconnected(id);
-    }
 
-    public void stopAccepting() {
-        accepting = false;
-        if(serverSocket != null) {
-            try {
-                serverSocket.close();
-            } catch(IOException e) { }
-        }
-    }
+            while(gClientConnections.size() > 0) {
+                for(ClientConnection clientConnection : gClientConnections) {
+                    if(clientConnection.isActive()) {
+                        Player player = gGame.findPlayerById(clientConnection.getId());
+                        player.setValues(clientConnection.getPlayer());
+                        clientConnection.send(gGame);
+                    }
+                }
 
-    public void sendToOne(int id, int argc, int[] args) {
-        for(SubServer subServer : subServers) {
-            if(subServer.id == id) {
-                subServer.send(argc, args);
-                break;
+                gGame.step();
+
+                ClientConnection toBeRemoved = null;
+
+                for(ClientConnection clientConnection : gClientConnections) {
+                    if(clientConnection.isActive()) {
+                        clientConnection.send(gGame);
+                    } else {
+                        toBeRemoved = clientConnection;
+                    }
+                }
+
+                removeClientConnection(toBeRemoved);
+
+                Util.sleep(100);
             }
         }
-    }
-
-    public void sendToOne(int id, int arg1, int arg2) {
-        int[] args = {arg1, arg2};
-        sendToOne(id, 2, args);
-    }
-
-    public void sendToAll(int argc, int[] args) {
-        for(SubServer subServer : subServers)
-            subServer.send(argc, args);
-    }
-
-    public void sendToAll(int arg1, int arg2) {
-        int[] args = {arg1, arg2};
-        sendToAll(2, args);
-    }
-
-    public void sendToAll(int arg1, int arg2, int arg3) {
-        int[] args = {arg1, arg2, arg3};
-        sendToAll(3, args);
-    }
-
-    public void destroy() {
-        stopAccepting();
-        synchronized(subServers) {
-            for(SubServer s : subServers)
-                s.destroy();
-        }
-    }
-
-    public void setCallbacks(ServerCallbacks sc) {
-        serverCallbacks = sc;
-    }
-
-    public interface ServerCallbacks {
-        public void onClientMessageReceived(int id, int argc, int[] args);
-        public void onClientConnected(int id);
-        public void onClientDisconnected(int id);
     }
 }
