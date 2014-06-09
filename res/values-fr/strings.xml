@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Liquid Wars OS</string>
+    <string name="change_bluetooth_name">Change bluetooth name:</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="searching">Searching...</string>
 </resources>
