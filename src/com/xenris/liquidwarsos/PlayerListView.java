@@ -24,10 +24,10 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
-import java.util.HashMap;
+import android.util.SparseArray;
 
 public class PlayerListView extends View {
-    private HashMap<Integer, Player> players = new HashMap<Integer, Player>();
+    private SparseArray<Player> players = new SparseArray<Player>();
     private Paint paint;
     private int width;
     private int height;
@@ -62,14 +62,16 @@ public class PlayerListView extends View {
         int y = height / 2;
         int diff = height / 20;
 
-        for(HashMap.Entry<Integer, Player> entry : players.entrySet()) {
-            paint.setColor(entry.getValue().ready ? Color.GREEN : Color.RED);
+        for(int i = 0, n = players.size(); i < n; i++) {
+            final Player player = players.valueAt(i);
+
+            paint.setColor(player.ready ? Color.GREEN : Color.RED);
             canvas.drawCircle(x, y, radius + diff, paint);
 
             paint.setColor(Color.BLACK);
             canvas.drawCircle(x, y, radius, paint);
 
-            paint.setColor(entry.getValue().colour);
+            paint.setColor(player.colour);
             canvas.drawCircle(x, y, radius - diff, paint);
 
             x += height;
