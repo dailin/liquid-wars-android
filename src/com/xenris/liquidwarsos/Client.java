@@ -67,7 +67,7 @@ public class Client extends BaseActivity
         super.onCreate();
 
         gGLSurfaceView = new GLSurfaceView(this);
-        gRenderer = new MyRenderer();
+        gRenderer = new MyRenderer(this);
 
         gGLSurfaceView.setRenderer(gRenderer);
         gGLSurfaceView.setVisibility(View.GONE);

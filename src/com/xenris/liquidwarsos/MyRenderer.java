@@ -17,7 +17,9 @@
 
 package com.xenris.liquidwarsos;
 
+import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLU;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
 
@@ -26,30 +28,48 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private ClientInfo gClientInfo;
     private float gWidth;
     private float gHeight;
+    private Context gContext;
+
+    public MyRenderer(Context context) {
+        gContext = context;
+    }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        synchronized(this) {
-        }
+        gl.glEnable(GL10.GL_TEXTURE_2D);
+        gl.glEnable(GL10.GL_DEPTH_TEST);
+        gl.glShadeModel(GL10.GL_SMOOTH);
+        gl.glEnable(GL10.GL_BLEND);
+        gl.glDepthFunc(GL10.GL_LEQUAL);
+        gl.glBlendFunc(GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
 //        NativeInterface.onSurfaceCreated();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        gl.glClearColor(0, 0, 1, 1);
-        gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-
         synchronized(this) {
+            gl.glClearColor(0, 0, 1, 1);
+            gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+
+            gl.glLoadIdentity();
         }
 //        NativeInterface.onDrawFrame();
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        synchronized(this) {
-            gWidth = width;
-            gHeight = height;
-        }
+        gWidth = width;
+        gHeight = height;
+
+        gl.glViewport(0, 0, width, height);
+        gl.glMatrixMode(GL10.GL_PROJECTION);
+        gl.glLoadIdentity();
+
+        gl.glOrthof(0, Constants.WIDTH, Constants.HEIGHT, 0, -10, 10);
+
+        gl.glMatrixMode(GL10.GL_MODELVIEW);
+        gl.glLoadIdentity();
 //        NativeInterface.onSurfaceChanged(width, height);
     }
 
