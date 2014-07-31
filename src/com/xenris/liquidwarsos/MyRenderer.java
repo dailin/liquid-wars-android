@@ -28,6 +28,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private ClientInfo gClientInfo;
     private float gWidth;
     private float gHeight;
+    private Sprite touchSprite;
     private Context gContext;
 
     public MyRenderer(Context context) {
@@ -43,6 +44,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         gl.glDepthFunc(GL10.GL_LEQUAL);
         gl.glBlendFunc(GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA);
         gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
+
+        touchSprite = new Sprite(gl, gContext, R.drawable.touch);
+        touchSprite.scale(10, 10);
 //        NativeInterface.onSurfaceCreated();
     }
 
@@ -53,6 +57,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
             gl.glLoadIdentity();
+
+            if(gClientInfo != null) {
+                touchSprite.draw(gl, gClientInfo.getX(), gClientInfo.getY()); // TODO Draw at each finger touch point.
+            }
         }
 //        NativeInterface.onDrawFrame();
     }
