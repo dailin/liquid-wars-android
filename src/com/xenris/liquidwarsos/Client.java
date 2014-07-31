@@ -20,6 +20,7 @@ package com.xenris.liquidwarsos;
 import android.app.*;
 import android.bluetooth.*;
 import android.graphics.*;
+import android.opengl.GLSurfaceView;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
@@ -49,7 +50,8 @@ public class Client extends BaseActivity
 
     private View gMenuView;
     private PlayerListView gPlayerListView;
-    private GameView gGameView;
+    private GLSurfaceView gGLSurfaceView;
+    private MyRenderer gRenderer;
 
     private Bluetooth gBluetooth;
 
@@ -64,12 +66,16 @@ public class Client extends BaseActivity
     public void onCreate() {
         super.onCreate();
 
-        gGameView = new GameView(this);
-        gGameView.setVisibility(View.GONE);
-        addView(gGameView);
+        gGLSurfaceView = new GLSurfaceView(this);
+        gRenderer = new MyRenderer();
+
+        gGLSurfaceView.setRenderer(gRenderer);
+        gGLSurfaceView.setVisibility(View.GONE);
+        addView(gGLSurfaceView);
+
         gMenuView = addView(R.layout.game_menu);
 
-        gGameView.setOnTouchListener(this);
+        gGLSurfaceView.setOnTouchListener(this);
 
         setupHandlers();
 
@@ -78,7 +84,7 @@ public class Client extends BaseActivity
         gServerConnection.start();
         gServer.start();
         gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
-        gGameView.setClientInfoToDraw(gMe);
+        gRenderer.setClientInfoToDraw(gMe);
 
         gGameThread = new Thread(this);
         gGameThread.setName("Client Game Loop Thread");
@@ -103,11 +109,11 @@ public class Client extends BaseActivity
             switch(message.what) {
                 case Constants.SWITCH_TO_GAME_MENU:
                     gMenuView.setVisibility(View.VISIBLE);
-                    gGameView.setVisibility(View.GONE);
+                    gGLSurfaceView.setVisibility(View.GONE);
                     break;
                 case Constants.SWITCH_TO_GAME_VIEW:
                     gMenuView.setVisibility(View.GONE);
-                    gGameView.setVisibility(View.VISIBLE);
+                    gGLSurfaceView.setVisibility(View.VISIBLE);
                     break;
                 case Constants.CONNECTION_MADE:
                     Toast.makeText(Client.this, "Connection made!", Toast.LENGTH_SHORT).show();
@@ -177,7 +183,7 @@ public class Client extends BaseActivity
 
             if(newGameState != null) {
                 gameState = newGameState;
-                gGameView.setGameStateToDraw(gameState);
+                gRenderer.setGameStateToDraw(gameState);
                 final Message message = uiHandler.obtainMessage(Constants.UPDATE_UI, gameState);
                 uiHandler.sendMessage(message);
                 if(gameState.state() == GameState.IN_PLAY) {
@@ -196,8 +202,8 @@ public class Client extends BaseActivity
 
     public boolean onTouch(View view, MotionEvent event) {
         final int action = event.getActionMasked();
-        final float x = event.getX() / gGameView.getWidth();
-        final float y = event.getY() / gGameView.getHeight();
+        final float x = event.getX() / gGLSurfaceView.getWidth();
+        final float y = event.getY() / gGLSurfaceView.getHeight();
         final float sx = x * 800;
         final float sy = y * 480;
 
@@ -263,7 +269,7 @@ public class Client extends BaseActivity
         gServerConnection = bluetoothServerConnection;
         gServerConnection.start();
         gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
-        gGameView.setClientInfoToDraw(gMe);
+        gRenderer.setClientInfoToDraw(gMe);
 
         final MyApplication application = (MyApplication)getApplication();
         final Handler uiHandler = application.getUiHandler();

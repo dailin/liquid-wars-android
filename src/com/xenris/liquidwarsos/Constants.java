@@ -38,4 +38,7 @@ public class Constants {
     public static final int DISCOVERABLE_TIME = 30;
 
     public static final UUID uuid = new UUID(182741987, 289479128);
+
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 480;
 }
