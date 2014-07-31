@@ -17,28 +17,39 @@
 
 package com.xenris.liquidwarsos;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.widget.TextView;
-import android.view.View;
-import android.view.Window;
+import android.app.*;
+import android.content.*;
+import android.os.*;
+import android.view.*;
+import android.widget.*;
 
-public class InstructionsActivity extends Activity {
-    private static final String instructions1 = "Aim:\n Convert the enemy's army to your own colour to win.";
-    private static final String instructions2 = "How to play:\n Wherever you touch the screen your army will run to.\n Use up to five fingers to guide your army.\n Enemy liquid will be converted to your own when they collide.";
+public class BaseActivity extends Activity {
+    private FrameLayout gFrameLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        onCreate();
+    }
+
+    public void onCreate() {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        final int fullscreen = WindowManager.LayoutParams.FLAG_FULLSCREEN;
+        final int keepOn = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+        getWindow().addFlags(fullscreen | keepOn);
 
-        setContentView(R.layout.instructions);
+        gFrameLayout = new FrameLayout(this);
+        setContentView(gFrameLayout);
+    }
 
-        TextView tv;
-        tv = (TextView)findViewById(R.id.instructions1);
-        tv.setText(instructions1);
-        tv = (TextView)findViewById(R.id.instructions2);
-        tv.setText(instructions2);
+    protected View addView(View view) {
+        gFrameLayout.addView(view);
+        return view;
+    }
+
+    protected View addView(int resource) {
+        final View view = getLayoutInflater().inflate(resource, null);
+        return addView(view);
     }
 }

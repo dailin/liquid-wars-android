@@ -7,30 +7,33 @@ android:layout_height="fill_parent"
 android:gravity="center">
 
     <Button
-    android:text="Single Player Game"
+    android:id="@+id/play_button"
+    android:text="Play"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:textSize="25sp"
     android:clickable="true"
     android:padding="10sp"
-    android:onClick="singlePlayerMenu"/>
+    android:onClick="buttonHandler"/>
 
     <Button
-    android:text="Multiplayer Game"
+    android:id="@+id/settings_button"
+    android:text="Settings"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:textSize="25sp"
     android:clickable="true"
     android:padding="10sp"
-    android:onClick="multiplayerMenu"/>
+    android:onClick="buttonHandler"/>
 
     <Button
-    android:text="How To Play"
+    android:id="@+id/about_button"
+    android:text="About"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:textSize="25sp"
     android:clickable="true"
     android:padding="10sp"
-    android:onClick="instructions"/>
+    android:onClick="buttonHandler"/>
 
 </LinearLayout>

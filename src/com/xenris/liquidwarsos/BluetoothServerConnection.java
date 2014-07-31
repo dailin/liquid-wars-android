@@ -17,7 +17,7 @@
 
 package com.xenris.liquidwarsos;
 
-import android.bluetooth.BluetoothSocket;
+import android.bluetooth.*;
 import java.io.*;
 
 public class BluetoothServerConnection extends ServerConnection {
@@ -30,7 +30,7 @@ public class BluetoothServerConnection extends ServerConnection {
             final OutputStream outputStream = bluetoothSocket.getOutputStream();
             final InputStream inputStream = bluetoothSocket.getInputStream();
 
-            init(inputStream, outputStream);
+            init(outputStream, inputStream);
         } catch (IOException e) {
             close();
             return;

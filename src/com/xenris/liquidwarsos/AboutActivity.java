@@ -17,10 +17,15 @@
 
 package com.xenris.liquidwarsos;
 
-import java.io.*;
+import android.view.*;
 
-public class LocalClientConnection extends ClientConnection {
-    public LocalClientConnection(InputStream inputStream, OutputStream outputStream) {
-        super(inputStream, outputStream);
+public class AboutActivity extends BaseActivity {
+    private View gView;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        gView = addView(R.layout.about);
     }
 }

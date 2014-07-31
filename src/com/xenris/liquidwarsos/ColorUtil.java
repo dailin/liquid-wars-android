@@ -17,38 +17,35 @@
 
 package com.xenris.liquidwarsos;
 
-import android.opengl.GLSurfaceView;
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
+import android.graphics.Color;
+import java.util.Random;
 
-public class MyGLSurfaceView extends GLSurfaceView {
-    private SurfaceCallbacks surfaceCallbacks;
+public class ColorUtil {
+    private static final Random gRandom = new Random();
+    private static final float gSaturation = 0.7f;
+    private static final float gValue = 0.85f;
+    private static final int[] gColourWheel;
 
-    public MyGLSurfaceView(Context context) {
-        super(context);
-        setRenderer(new MyRenderer());
-    }
+    static {
+        gColourWheel = new int[7];
 
-    public MyGLSurfaceView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setRenderer(new MyRenderer());
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if(surfaceCallbacks != null) {
-            surfaceCallbacks.onTouch(event);
+        for(int i = 0; i < 7; i++) {
+            final float hue = 360.0f - ((float)i / 6.0f) * 360.0f;
+            gColourWheel[i] = hueToColour(hue);
         }
-
-        return true;
     }
 
-    public void setSurfaceCallbacks(SurfaceCallbacks sc) {
-        surfaceCallbacks = sc;
+    public static int randomColour() {
+        final int hue = gRandom.nextInt(360);
+        return hueToColour(hue);
     }
 
-    public interface SurfaceCallbacks {
-        public void onTouch(MotionEvent event);
+    public static int[] colourWheel() {
+        return gColourWheel;
+    }
+
+    public static int hueToColour(float hue) {
+        final float[] hsv = {hue, gSaturation, gValue};
+        return Color.HSVToColor(hsv);
     }
 }

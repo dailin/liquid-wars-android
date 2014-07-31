@@ -17,20 +17,91 @@
 
 package com.xenris.liquidwarsos;
 
-import android.bluetooth.BluetoothSocket;
-import java.util.ArrayList;
 import java.io.*;
+import java.util.*;
 
-public class Server {
-    private Game gGame = new Game();
+// Note: Need to call start on the server AFTER the first connection
+//  is made otherwise the server will simply exit.
+
+public class Server extends Thread {
     private ArrayList<ClientConnection> gClientConnections = new ArrayList<ClientConnection>();
+    private GameState gGameState = new GameState();
 
-    public Server() {
-        GameThread gameThread = new GameThread();
-        gameThread.start();
+    @Override
+    public void run() {
+        setName("Server Game Loop Thread");
+
+        while(gClientConnections.size() > 0) {
+            getClientInfo();
+
+            updateGameState();
+
+            sendGameState();
+
+            removeClosedConnections();
+
+            Util.sleep(100); // XXX Dodgy speed regulation. 10 times per second.
+        }
     }
 
-    public ServerConnection createLocalConnection() {
+    private void getClientInfo() {
+        for(ClientConnection clientConnection : gClientConnections) {
+            final ClientInfo clientInfo = clientConnection.getClientInfo();
+            if(clientInfo != null) {
+                gGameState.updateClientInfo(clientInfo);
+            }
+        }
+    }
+
+    private void updateGameState() {
+        if(gGameState.state() == GameState.IN_PLAY) {
+        } else if(gGameState.state() == GameState.COUNTDOWN) {
+            gGameState.state(GameState.IN_PLAY);
+        } else if(gGameState.state() == GameState.MAIN_MENU) {
+            // Check if everyone is ready to start the game.
+            boolean everyoneIsReady = true;
+
+            for(ClientConnection clientConnection : gClientConnections) {
+                final ClientInfo clientInfo = clientConnection.getClientInfo();
+                if(clientInfo != null) {
+                    everyoneIsReady = everyoneIsReady && clientInfo.isReady();
+                } else {
+                    everyoneIsReady = false;
+                }
+            }
+
+            if(everyoneIsReady) {
+                gGameState.state(GameState.COUNTDOWN);
+            }
+        }
+
+        // TODO Step game.
+    }
+
+    public void sendGameState() {
+        for(ClientConnection clientConnection : gClientConnections) {
+            clientConnection.sendGameState(gGameState);
+        }
+    }
+
+    public void removeClosedConnections() {
+        ClientConnection toRemove = null;
+
+        for(ClientConnection clientConnection : gClientConnections) {
+            if(clientConnection.isClosed()) {
+                toRemove = clientConnection;
+                break;
+            }
+        }
+
+        if(toRemove != null) {
+            gGameState.removeClientInfo(toRemove.getConnectionId());
+            gClientConnections.remove(toRemove);
+            toRemove.close();
+        }
+    }
+
+    public ServerConnection createConnection() {
         // s = for server
         // c = for client
         final PipedOutputStream oss = new PipedOutputStream();
@@ -45,69 +116,14 @@ public class Server {
             return null;
         }
 
-        addClientConnection(new LocalClientConnection(iss, oss));
+        addClientConnection(new ClientConnection(oss, iss));
 
-        return new LocalServerConnection(isc, osc);
+        return new ServerConnection(osc, isc);
     }
 
     public void addClientConnection(ClientConnection clientConnection) {
-        synchronized (gClientConnections) {
-            gClientConnections.add(clientConnection);
-        }
-
-        Player player = new Player(clientConnection.getId());
-        gGame.addPlayer(player);
-    }
-
-    public void removeClientConnection(ClientConnection clientConnection) {
-        if(clientConnection != null) {
-            synchronized (gClientConnections) {
-                gClientConnections.remove(clientConnection);
-            }
-
-            gGame.removePlayer(clientConnection.getId());
-        }
-    }
-
-    // XXX Should this be in Game?
-    public class GameThread extends Thread {
-        @Override
-        public void run() {
-            // Wait for one minute for someone to join.
-            int counter = 60 * 10;
-            while(counter > 0) {
-                if(gClientConnections.size() > 0) {
-                    break;
-                } else {
-                    Util.sleep(100);
-                }
-            }
-
-            while(gClientConnections.size() > 0) {
-                for(ClientConnection clientConnection : gClientConnections) {
-                    if(clientConnection.isActive()) {
-                        Player player = gGame.findPlayerById(clientConnection.getId());
-                        player.setValues(clientConnection.getPlayer());
-                        clientConnection.send(gGame);
-                    }
-                }
-
-                gGame.step();
-
-                ClientConnection toBeRemoved = null;
-
-                for(ClientConnection clientConnection : gClientConnections) {
-                    if(clientConnection.isActive()) {
-                        clientConnection.send(gGame);
-                    } else {
-                        toBeRemoved = clientConnection;
-                    }
-                }
-
-                removeClientConnection(toBeRemoved);
-
-                Util.sleep(100);
-            }
-        }
+        final int id = clientConnection.getConnectionId();
+        gGameState.addClientInfo(id);
+        gClientConnections.add(clientConnection);
     }
 }

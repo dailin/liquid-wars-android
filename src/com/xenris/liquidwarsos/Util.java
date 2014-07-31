@@ -17,13 +17,30 @@
 
 package com.xenris.liquidwarsos;
 
+import android.os.*;
 import java.io.*;
 
 public class Util {
-    public static void sleep(long millis) {
+    private static int gNextId = 0;
+
+    public static int getNextId() {
+        return gNextId++;
+    }
+
+    public static void join(Thread thread) {
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            Log.message(Log.tag, "Error: Util.join(): " + e.getMessage());
+        }
+    }
+
+    public static void sleep(int millis) {
         try {
             Thread.sleep(millis);
-        } catch (InterruptedException e) { }
+        } catch (InterruptedException e) {
+            Log.message(Log.tag, "Error: Util.sleep(): " + e.getMessage());
+        }
     }
 
     public static boolean close(Closeable closeable) {

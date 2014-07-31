@@ -17,36 +17,38 @@
 
 package com.xenris.liquidwarsos;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.view.View;
-import android.view.Window;
-import android.content.Intent;
+import android.content.*;
+import android.view.*;
 
-public class MainMenuActivity extends Activity {
+public class MainMenuActivity extends BaseActivity {
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate() {
+        super.onCreate();
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        setContentView(R.layout.main_menu);
+        addView(R.layout.main_menu);
     }
 
-    public void singlePlayerMenu(View view) {
-//        Intent intent = new Intent(this, SinglePlayerGameSetupActivity.class);
-//        startActivity(intent);
+    public void buttonHandler(View view) {
+        final int id = view.getId();
+
+        if(id == R.id.play_button) {
+            play();
+        } else if(id == R.id.settings_button) {
+            settings();
+        } else if(id == R.id.about_button) {
+            about();
+        }
     }
 
-    public void multiplayerMenu(View view) {
-            Intent intent = new Intent(this, MultiplayerMenuActivity.class);
-            startActivity(intent);
+    private void play() {
+        startActivity(new Intent(this, Client.class));
     }
 
-    public void instructions(View view) {
-        Intent intent = new Intent(this, InstructionsActivity.class);
-        startActivity(intent);
+    private void settings() {
+        startActivity(new Intent(this, SettingsActivity.class));
+    }
+
+    private void about() {
+        startActivity(new Intent(this, AboutActivity.class));
     }
 }

@@ -18,9 +18,13 @@
 package com.xenris.liquidwarsos;
 
 public class Log {
-    public static final String LOG = "LiquidWarsMessage";
+    public static final String tag = "GameMessage";
+
+    public static void message(String t, String s) {
+        android.util.Log.i(t, s);
+    }
 
     public static void message(String s) {
-        android.util.Log.i(LOG, s);
+        android.util.Log.i(tag, s);
     }
 }

@@ -2,15 +2,15 @@
 <LinearLayout
 xmlns:android="http://schemas.android.com/apk/res/android"
 android:orientation="vertical"
-android:layout_width="fill_parent"
-android:layout_height="fill_parent"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
 android:background="#000">
 
     <!--Top bar.-->
     <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="20"
     android:gravity="center">
@@ -29,14 +29,14 @@ android:background="#000">
         <!--List of players.-->
         <com.xenris.liquidwarsos.PlayerListView
         android:id="@+id/player_list_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     </LinearLayout>
 
     <!--Horizontal line XXX Not sure if this should be here. Might be messy and/or ugly.-->
     <View
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="1dp"
     android:layout_margin="0dp"
     android:background="#999"/>
@@ -46,7 +46,7 @@ android:background="#000">
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:baselineAligned="false"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="80">
 
@@ -55,7 +55,7 @@ android:background="#000">
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="0dp"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_weight="40">
 
             <!--Player's colour-->
@@ -63,32 +63,47 @@ android:background="#000">
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/player_colour_view"
             android:orientation="vertical"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="20dp"
             android:background="#000"
-            android:layout_weight="60"
-            android:onClick="onColourClicked">
+            android:layout_weight="30"
+            android:onClick="buttonHandler">
             </LinearLayout>
 
             <!--Bottom left container-->
             <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="vertical"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="40"
+            android:layout_weight="70"
             android:gravity="center">
+
+                <!--Share button-->
+                <Button
+                android:id="@+id/share_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Share"
+                android:onClick="buttonHandler"/>
+
+                <!--Find button-->
+                <Button
+                android:id="@+id/find_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Find"
+                android:onClick="buttonHandler"/>
 
                 <!--Ready button-->
                 <ToggleButton
-                android:id="@+id/read_button"
-                android:layout_width="fill_parent"
+                android:id="@+id/ready_button"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:onClick="onReadyClicked"
-                android:textOn="Ready"
-                android:textOff="Not Ready"/>
+                android:textOn="Start"
+                android:textOff="Start"
+                android:onClick="buttonHandler"/>
 
             </LinearLayout>
 
@@ -99,20 +114,57 @@ android:background="#000">
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="0dp"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_weight="60">
 
             <!--Map image XXX Should this be wrap_content? Need correct aspect ratio.-->
             <ImageView
             android:id="@+id/map_imageview"
             android:layout_margin="20dp"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:src="@+drawable/map_10"
-            android:onClick="onMapClicked"/>
+            android:onClick="buttonHandler"/>
 
         </LinearLayout>
 
     </LinearLayout>
 
 </LinearLayout>
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<LinearLayout-->
+<!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--android:orientation="vertical"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="match_parent"-->
+<!--android:background="#000">-->
+
+<!--    <TextView-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:text="Game Menu"/>-->
+
+<!--    <Button-->
+<!--    android:id="@+id/share_button"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:text="Share"-->
+<!--    android:onClick="buttonHandler"/>-->
+
+<!--    <Button-->
+<!--    android:id="@+id/find_button"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:text="Find"-->
+<!--    android:onClick="buttonHandler"/>-->
+
+<!--    <ToggleButton-->
+<!--    android:id="@+id/ready_button"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:textOn="Start"-->
+<!--    android:textOff="Start"-->
+<!--    android:onClick="buttonHandler"/>-->
+
+<!--</LinearLayout>-->

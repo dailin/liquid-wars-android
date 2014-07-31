@@ -30,7 +30,7 @@ public class BluetoothClientConnection extends ClientConnection {
             final OutputStream outputStream = bluetoothSocket.getOutputStream();
             final InputStream inputStream = bluetoothSocket.getInputStream();
 
-            init(inputStream, outputStream);
+            init(outputStream, inputStream);
         } catch (IOException e) {
             close();
             return;

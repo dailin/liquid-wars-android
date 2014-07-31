@@ -43,7 +43,7 @@ public class ColourPickerView extends View {
         gCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         gCenterPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        SweepGradient sweepGradient = new SweepGradient(0, 0, Colour.colourWheel(), null);
+        SweepGradient sweepGradient = new SweepGradient(0, 0, ColorUtil.colourWheel(), null);
 
         gCirclePaint.setShader(sweepGradient);
         gCirclePaint.setStyle(Paint.Style.STROKE);
@@ -107,7 +107,7 @@ public class ColourPickerView extends View {
     private int calculateColour(int x, int y) {
         final float r = (float)Math.atan2(y, -x);
         final float hue = (((r / (float)Math.PI) + 1.0f) / 2.0f) * 360.0f;
-        return Colour.hueToColour(hue);
+        return ColorUtil.hueToColour(hue);
     }
 
     @Override

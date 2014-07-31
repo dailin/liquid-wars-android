@@ -19,78 +19,86 @@ package com.xenris.liquidwarsos;
 
 import java.io.*;
 
-public abstract class ClientConnection {
-    private static int gNextId = 0;
-    private int gId = -1;
-    private Player gClientsPlayer = new Player(-1, 0, false);
+public class ClientConnection extends Thread {
+    private int gConnectionId;
     private DataOutputStream gDataOutputStream;
     private DataInputStream gDataInputStream;
-    private boolean gIsActive = true;
+    private ClientInfo gClientInfoA;
+    private ClientInfo gClientInfoB;
+    private boolean gIsClosed = false;
 
     public ClientConnection() {
-        // Extending classes need to call init manually.
     }
 
-    public ClientConnection(InputStream inputStream, OutputStream outputStream) {
-        init(inputStream, outputStream);
+    public ClientConnection(OutputStream outputStream, InputStream inputStream) {
+        init(outputStream, inputStream);
     }
 
-    public void init(InputStream inputStream, OutputStream outputStream) {
+    public void init(OutputStream outputStream, InputStream inputStream) {
+        gConnectionId = Util.getNextId();
+
         gDataOutputStream = new DataOutputStream(outputStream);
         gDataInputStream = new DataInputStream(inputStream);
 
-        gId = gNextId++;
-
         try {
-            gDataOutputStream.writeInt(gId);
+            gDataOutputStream.writeInt(gConnectionId);
         } catch (IOException e) {
-            Log.message("Error: failed to write client id");
-            close();
+            Log.message(Log.tag, "Error: failed to write connection ID in ClientConnection");
             return;
         }
 
-        startReceiving();
+        start();
     }
 
-    private void startReceiving() {
-        ReceivingThread thread = new ReceivingThread();
-        thread.start();
-    }
+    @Override
+    public void run() {
+        setName("ClientConnection");
 
-    private class ReceivingThread extends Thread {
-        @Override
-        public void run() {
-            while(true) {
-                synchronized (gClientsPlayer) {
-                    if(!gClientsPlayer.read(gDataInputStream)) {
-                        break;
-                    }
-                }
+        while(true) {
+            try {
+                gClientInfoB = new ClientInfo(gDataInputStream);
+            } catch (IOException e) {
+                break;
             }
 
-            gIsActive = false;
-            close();
+            shiftClientInfos();
+        }
+
+        close();
+    }
+
+    public ClientInfo getClientInfo() {
+        synchronized (this) {
+            return gClientInfoA;
         }
     }
 
-    public void send(Game game) {
-        game.send(gDataOutputStream);
+    private void shiftClientInfos() {
+        synchronized (this) {
+            gClientInfoA = gClientInfoB;
+            gClientInfoB = null;
+        }
     }
 
-    public boolean isActive() {
-        return gIsActive;
+    public void sendGameState(GameState gameState) {
+        try {
+            gameState.write(gDataOutputStream);
+        } catch (IOException e) {
+            Log.message(Log.tag, "Error: failed to send game state in ClientConnection");
+        }
     }
 
-    public Player getPlayer() {
-        return gClientsPlayer;
-    }
-
-    public int getId() {
-        return gId;
+    public int getConnectionId() {
+        return gConnectionId;
     }
 
     public void close() {
-        Util.close(gDataInputStream);
+        gIsClosed = true;
         Util.close(gDataOutputStream);
+        Util.close(gDataInputStream);
+    }
+
+    public boolean isClosed() {
+        return gIsClosed;
     }
 }

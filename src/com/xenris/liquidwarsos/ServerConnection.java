@@ -20,129 +20,68 @@ package com.xenris.liquidwarsos;
 import java.io.*;
 import java.util.*;
 
-public abstract class ServerConnection {
-    private int gId = -1;
-    private LinkedList<Game> gGameBuffer = new LinkedList<Game>();
-    private Player gLocalPlayer = new Player(-1);
+public class ServerConnection extends Thread {
+    private int gConnectionId;
     private DataOutputStream gDataOutputStream;
     private DataInputStream gDataInputStream;
-    private Callbacks gCallbacks;
+    private LinkedList<GameState> gGameStateQueue = new LinkedList<GameState>();
 
     public ServerConnection() {
-        // Extending classes need to call init manually.
     }
 
-    public ServerConnection(InputStream inputStream, OutputStream outputStream) {
-        init(inputStream, outputStream);
+    public ServerConnection(OutputStream outputStream, InputStream inputStream) {
+        init(outputStream, inputStream);
     }
 
-    public void init(InputStream inputStream, OutputStream outputStream) {
+    protected void init(OutputStream outputStream, InputStream inputStream) {
         gDataOutputStream = new DataOutputStream(outputStream);
         gDataInputStream = new DataInputStream(inputStream);
 
-        startReceiving();
-        startSending();
-    }
-
-    public void registerCallbacks(Callbacks callbacks) {
-        gCallbacks = callbacks;
-    }
-
-    public void setColour(int colour) {
-        synchronized (gLocalPlayer) {
-            gLocalPlayer.setColour(colour);
+        try {
+            gConnectionId = gDataInputStream.readInt();
+        } catch (IOException e) {
+            Log.message(Log.tag, "Error: failed to get connection ID in ServerConnection");
+            return;
         }
     }
 
-    public int getColour() {
-        return gLocalPlayer.getColour();
-    }
+    @Override
+    public void run() {
+        setName("ServerConnection");
 
-    public void setReadyState(boolean ready) {
-        synchronized (gLocalPlayer) {
-            gLocalPlayer.isReady(ready);
-        }
-    }
+        while(true) {
+            GameState gameState = null;
 
-    private void startReceiving() {
-        ReceivingThread thread = new ReceivingThread();
-        thread.start();
-    }
-
-    private void startSending() {
-        SendingThread thread = new SendingThread();
-        thread.start();
-    }
-
-    private class ReceivingThread extends Thread {
-        @Override
-        public void run() {
             try {
-                gId = gDataInputStream.readInt();
+                gameState = new GameState(gDataInputStream);
             } catch (IOException e) {
-                Log.message("Error: failed to get client id");
-                return;
+                break;
             }
 
-            while(true) {
-                final Game game = Game.createNew(gDataInputStream);
+            gGameStateQueue.add(gameState);
+        }
 
-                if(game != null) {
-                    // TODO check that this game is in squential order.
-                    if(gGameBuffer.offer(game)) {
-                        if(gCallbacks != null) {
-                            gCallbacks.onGameAvailable();
-                        }
-                    } else {
-                        Log.message("Error: failed to add game to game buffer");
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
+        close();
+    }
 
-            Log.message("ServerConnection ReceivingThread closed");
+    public void sendClientInfo(ClientInfo clientInfo) {
+        try {
+            clientInfo.write(gDataOutputStream);
+        } catch (IOException e) {
+//            Log.message(Log.tag, "Error: failed to send player state in ServerConnection");
         }
     }
 
-    // XXX This might not need to be a thread....?
-    private class SendingThread extends Thread {
-        @Override
-        public void run() {
-            while(true) {
-                boolean sendSuccess;
-
-                synchronized (gLocalPlayer) {
-                    sendSuccess = gLocalPlayer.send(gDataOutputStream);
-                }
-
-                if(!sendSuccess) {
-                    break;
-                }
-
-                // Only send about ten times per second.
-                Util.sleep(100);
-            }
-
-            Log.message("ServerConnection SendingThread closed");
-        }
-    }
-
-    public int getId() {
-        return gId;
-    }
-
-    public Game getNextGameState() {
-        return gGameBuffer.poll();
+    public int getConnectionId() {
+        return gConnectionId;
     }
 
     public void close() {
-        Util.close(gDataInputStream);
         Util.close(gDataOutputStream);
+        Util.close(gDataInputStream);
     }
 
-    public interface Callbacks {
-        void onGameAvailable();
+    public GameState getNextGameState() {
+        return gGameStateQueue.poll();
     }
 }

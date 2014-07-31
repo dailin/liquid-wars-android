@@ -17,39 +17,17 @@
 
 package com.xenris.liquidwarsos;
 
-import android.app.Application;
-import android.content.res.Configuration;
+import android.app.*;
+import android.os.*;
 
 public class MyApplication extends Application {
-    public ServerConnection gServerConnection;
+    private Handler gUiHandler;
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+    public void setUiHandler(Handler handler) {
+        gUiHandler = handler;
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-    }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-    }
-
-    public void putServerConnection(ServerConnection serverConnection) {
-        gServerConnection = serverConnection;
-    }
-
-    public ServerConnection getServerConnection() {
-        ServerConnection serverConnection = gServerConnection;
-        gServerConnection = null;
-        return serverConnection;
+    public Handler getUiHandler() {
+        return gUiHandler;
     }
 }

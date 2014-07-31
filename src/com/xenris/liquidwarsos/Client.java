@@ -17,116 +17,299 @@
 
 package com.xenris.liquidwarsos;
 
-import java.lang.Thread;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.io.OutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+import android.app.*;
+import android.bluetooth.*;
+import android.graphics.*;
+import android.os.*;
+import android.view.*;
+import android.widget.*;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+import com.xenris.liquidwarsos.Bluetooth.CreateConnectionCallbacks;
+import com.xenris.liquidwarsos.ColourPickerDialog.ColourPickerListener;
+import java.util.*;
 
-public class Client extends Thread {
-    private ClientCallbacks clientCallbacks;
-    private String ip;
-    private int port;
-    private Socket socket;
-    private int id = -1;
-    private boolean sendLocked = false;
-    private boolean destroyCalled;
+public class Client extends BaseActivity
+    implements
+        CreateConnectionCallbacks,
+        Runnable,
+        View.OnTouchListener {
 
-    public Client(ClientCallbacks clientCallbacks, String ip, int port) {
-        this.clientCallbacks = clientCallbacks;
-        this.ip = ip;
-        this.port = port;
-        this.start();
+    public Server gServer; // XXX Idealy this won't be needed. Just an extra thing to be null unexpectedly.
+    private ServerConnection gServerConnection;
+    private ClientInfo gMe;
+
+    private boolean gRunning;
+    private Thread gGameThread;
+
+    // XXX XXX XXX
+    // Put game touch state here and use to send to server and draw positional info.
+    //  Could also be called PlayerState or LocalPlayerState or something.
+//    private TouchInfo gTouchInfo = new TouchInfo();
+
+    private View gMenuView;
+    private PlayerListView gPlayerListView;
+    private GameView gGameView;
+
+    private Bluetooth gBluetooth;
+
+    private AlertDialog gSearchAlertDialog;
+    private ArrayList<BluetoothDevice> gBluetoothDevices;
+
+    private int backButtonCount = 0;
+    private long backButtonPreviousTime = 0;
+    private boolean backButtonMessageHasBeenShown = false;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        gGameView = new GameView(this);
+        gGameView.setVisibility(View.GONE);
+        addView(gGameView);
+        gMenuView = addView(R.layout.game_menu);
+
+        gGameView.setOnTouchListener(this);
+
+        setupHandlers();
+
+        gServer = new Server();
+        gServerConnection = gServer.createConnection();
+        gServerConnection.start();
+        gServer.start();
+        gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
+        gGameView.setClientInfoToDraw(gMe);
+
+        gGameThread = new Thread(this);
+        gGameThread.setName("Client Game Loop Thread");
+        gGameThread.start();
+
+        gBluetooth = new Bluetooth(this);
+
+        setPublicNameTextView(gBluetooth.getPublicName());
+
+        gPlayerListView = (PlayerListView)findViewById(R.id.player_list_view);
+    }
+
+    private void setupHandlers() {
+        final MyApplication application = (MyApplication)getApplication();
+
+        application.setUiHandler(new Handler(gUiHandlerCallback));
+    }
+
+    private Handler.Callback gUiHandlerCallback = new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message message) {
+            switch(message.what) {
+                case Constants.SWITCH_TO_GAME_MENU:
+                    gMenuView.setVisibility(View.VISIBLE);
+                    gGameView.setVisibility(View.GONE);
+                    break;
+                case Constants.SWITCH_TO_GAME_VIEW:
+                    gMenuView.setVisibility(View.GONE);
+                    gGameView.setVisibility(View.VISIBLE);
+                    break;
+                case Constants.CONNECTION_MADE:
+                    Toast.makeText(Client.this, "Connection made!", Toast.LENGTH_SHORT).show();
+                    setPublicNameTextView((String)message.obj);
+                    break;
+                case Constants.CONNECTION_FAILED:
+                    Toast.makeText(Client.this, "Connection failed", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.UPDATE_UI:
+                    final GameState gameState = (GameState)message.obj;
+                    final ClientInfo tempMe = gameState.findClientInfoById(gMe.getId());
+                    setPlayerColorView(tempMe.getColor());
+                    gameState.updatePlayersList(gPlayerListView);
+            }
+
+            return true;
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+        gBluetooth.stopSharing();
+
+        gRunning = false;
+
+        try {
+            gGameThread.join();
+        } catch(InterruptedException e) { }
+
+        super.onDestroy();
+    }
+
+    public void buttonHandler(View view) {
+        final int id = view.getId();
+
+        if(id == R.id.share_button) {
+            share();
+        } else if(id == R.id.find_button) {
+            find();
+        } else if(id == R.id.ready_button) {
+            final boolean ready = ((ToggleButton)view).isChecked();
+            gMe.setReady(ready);
+        } else if(id == R.id.player_colour_view) {
+            changeColour();
+        }
     }
 
     @Override
     public void run() {
-        destroyCalled = false;
-        try {
-            socket = new Socket();
-            socket.connect(new InetSocketAddress(InetAddress.getByName(ip), port), 3000);
-            id = socket.getInputStream().read();
-            clientCallbacks.onServerConnectionMade(id, ip);
-            byte[] buffer = new byte[512];
-            int[] intBuffer = new int[128];
-            IntBuffer inIB = ByteBuffer.wrap(buffer).asIntBuffer();
-            InputStream is = socket.getInputStream();
-            while(true) {
-                int count = is.read();
-                if(count == -1) {
-                    break;
+        gRunning = true;
+        long previousTime = System.currentTimeMillis();
+        GameState gameState = null;
+        final MyApplication application = (MyApplication)getApplication();
+        final Handler uiHandler = application.getUiHandler();
+
+        while(gRunning) {
+            final long currentTime = System.currentTimeMillis();
+
+            // Send 10 times per second.
+            if((currentTime - previousTime) >= 100) {
+                gServerConnection.sendClientInfo(gMe);
+                previousTime = currentTime;
+            }
+
+            // If a new GameState has arrived from the server.
+            final GameState newGameState = gServerConnection.getNextGameState();
+
+            if(newGameState != null) {
+                gameState = newGameState;
+                gGameView.setGameStateToDraw(gameState);
+                final Message message = uiHandler.obtainMessage(Constants.UPDATE_UI, gameState);
+                uiHandler.sendMessage(message);
+                if(gameState.state() == GameState.IN_PLAY) {
+                    if(gameMenuIsVisible()) {
+                        uiHandler.sendEmptyMessage(Constants.SWITCH_TO_GAME_VIEW);
+                    }
+                    gMe.setReady(false);
                 }
-                is.read(buffer, 0, count);
-                inIB.get(intBuffer);
-                inIB.rewind();
-                if(clientCallbacks != null) {
-                    clientCallbacks.onServerMessageReceived(count/4, intBuffer);
+            }
+
+            Thread.yield();
+        }
+
+        gServerConnection.close();
+    }
+
+    public boolean onTouch(View view, MotionEvent event) {
+        final int action = event.getActionMasked();
+        final float x = event.getX() / gGameView.getWidth();
+        final float y = event.getY() / gGameView.getHeight();
+        final float sx = x * 800;
+        final float sy = y * 480;
+
+        if(action == MotionEvent.ACTION_MOVE) {
+            // XXX gMe probably needs to be synchronized.
+            gMe.setX((int)sx);
+            gMe.setY((int)sy);
+        }
+
+        return true;
+    }
+
+    private boolean gameMenuIsVisible() {
+        return gMenuView.getVisibility() == View.VISIBLE;
+    }
+
+    private void share() {
+        if(gBluetooth.isBluetoothEnabled()) {
+            gBluetooth.startSharing(gServer);
+        } else {
+            Toast.makeText(this, "Enable bluetooth first", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void find() {
+        final ServerFinderDialog.Callbacks callbacks = new ServerFinderDialog.Callbacks() {
+            @Override
+            public void onServerSelected(ServerFinderDialog dialog, BluetoothDevice device) {
+                // TODO Show "connecting" progress dialog.
+                gBluetooth.connect(device, Client.this);
+            }
+
+            @Override
+            public void onNothingSelected(ServerFinderDialog dialog) {
+            }
+        };
+
+        final ServerFinderDialog dialog = new ServerFinderDialog(this, callbacks, gBluetooth);
+        dialog.show();
+    }
+
+    public void changeColour() {
+        ColourPickerListener listener = new ColourPickerListener() {
+                @Override
+                public void onSelect(ColourPickerDialog dialog, int colour) {
+                    gMe.setColor(colour);
                 }
-            }
-        } catch(UnknownHostException u) {
-            if((clientCallbacks != null) && (!destroyCalled)) {
-                clientCallbacks.onServerConnectionFailed(ip);
-            }
-            destroy();
-            return;
-        } catch(IOException e) {
-            if((clientCallbacks != null) && (!destroyCalled)) {
-                clientCallbacks.onServerConnectionFailed(ip);
-            }
-            destroy();
-            return;
+            };
+        Rect displayRectangle = new Rect();
+        getWindow().getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
+        final int w = displayRectangle.width();
+        final int h = displayRectangle.height();
+        final int smallSide = (w < h) ? w : h;
+        final int currentColour = gMe.getColor();
+        final int dialogSize = (int)(smallSide * 0.8);
+        ColourPickerDialog colourPickerDialog = new ColourPickerDialog(this, currentColour, dialogSize, listener);
+        colourPickerDialog.show();
+    }
+
+    @Override
+    public void onConnectionMade(BluetoothServerConnection bluetoothServerConnection, String serverName) {
+        gServerConnection.close();
+        gServerConnection = bluetoothServerConnection;
+        gServerConnection.start();
+        gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
+        gGameView.setClientInfoToDraw(gMe);
+
+        final MyApplication application = (MyApplication)getApplication();
+        final Handler uiHandler = application.getUiHandler();
+        final String str = "Connected to " + serverName;
+        final Message message = uiHandler.obtainMessage(Constants.CONNECTION_MADE, str);
+        uiHandler.sendMessage(message);
+    }
+
+    @Override
+    public void onConnectionFailed() {
+        final MyApplication application = (MyApplication)getApplication();
+        final Handler uiHandler = application.getUiHandler();
+        uiHandler.sendEmptyMessage(Constants.CONNECTION_FAILED);
+    }
+
+    @Override
+    public void onBackPressed() {
+        final long currentTime = System.currentTimeMillis();
+        final long timeDiff = currentTime - backButtonPreviousTime;
+
+        backButtonPreviousTime = currentTime;
+
+        if((timeDiff < Constants.BACK_PRESS_DELAY) || (backButtonCount == 0)) {
+            backButtonCount++;
+        } else {
+            backButtonCount = 1;
         }
-        if(clientCallbacks != null) {
-            clientCallbacks.onServerConnectionClosed(ip);
+
+        if(backButtonCount >= Constants.BACK_PRESS_COUNT) {
+            finish();
         }
-        destroy();
-    }
 
-    public void send(int argc, int[] args) {
-        while(sendLocked) {
-            try { Thread.sleep(10); } catch (InterruptedException ie) { }
-        }
-        sendLocked = true;
-        try {
-            ByteBuffer bb = ByteBuffer.allocate(argc*4);
-            IntBuffer ib = bb.asIntBuffer();
-            ib.put(args, 0, argc);
-            OutputStream os = socket.getOutputStream();
-            os.write(argc*4);
-            os.write(bb.array());
-            os.flush();
-        } catch(IOException e) { }
-        sendLocked = false;
-    }
-
-    public void send(int arg1, int arg2) {
-        int[] args = {arg1, arg2};
-        send(2, args);
-    }
-
-    public void destroy() {
-        destroyCalled = true;
-        if(socket != null) {
-            try {
-                socket.close();
-            } catch(IOException e) { }
-            socket = null;
+        if(!backButtonMessageHasBeenShown) {
+            final String msg = "Press back " + Constants.BACK_PRESS_COUNT + " times to exit";
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            backButtonMessageHasBeenShown = true;
         }
     }
 
-    public void setCallbacks(ClientCallbacks cc) {
-        clientCallbacks = cc;
+    private void setPublicNameTextView(String string) {
+        final TextView tv = (TextView)findViewById(R.id.public_name_textview);
+        tv.setText(string);
     }
 
-    public interface ClientCallbacks {
-        public void onServerMessageReceived(int argc, int[] args);
-        public void onServerConnectionMade(int id, String ip);
-        public void onServerConnectionFailed(String ip);
-        public void onServerConnectionClosed(String ip);
+    private void setPlayerColorView(int color) {
+        final View view = findViewById(R.id.player_colour_view);
+        view.setBackgroundColor(color);
     }
 }
