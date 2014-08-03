@@ -50,7 +50,9 @@ public class ClientInfo {
     }
 
     public void setId(int id) {
-        gId = id;
+        synchronized(this) {
+            gId = id;
+        }
     }
 
     public int getX() {
@@ -58,7 +60,9 @@ public class ClientInfo {
     }
 
     public void setX(int x) {
-        gX = x;
+        synchronized(this) {
+            gX = x;
+        }
     }
 
     public int getY() {
@@ -66,7 +70,9 @@ public class ClientInfo {
     }
 
     public void setY(int y) {
-        gY = y;
+        synchronized(this) {
+            gY = y;
+        }
     }
 
     public int getColor() {
@@ -74,7 +80,9 @@ public class ClientInfo {
     }
 
     public void setColor(int color) {
-        gColor = color;
+        synchronized(this) {
+            gColor = color;
+        }
     }
 
     public boolean isReady() {
@@ -82,30 +90,38 @@ public class ClientInfo {
     }
 
     public void setReady(boolean ready) {
-        gReady = ready;
+        synchronized(this) {
+            gReady = ready;
+        }
     }
 
     public ClientInfo(DataInputStream dataInputStream) throws IOException {
-        gId = dataInputStream.readInt();
-        gX = dataInputStream.readInt();
-        gY = dataInputStream.readInt();
-        gColor = dataInputStream.readInt();
-        gReady = dataInputStream.readBoolean();
+        synchronized(this) {
+            gId = dataInputStream.readInt();
+            gX = dataInputStream.readInt();
+            gY = dataInputStream.readInt();
+            gColor = dataInputStream.readInt();
+            gReady = dataInputStream.readBoolean();
+        }
     }
 
     public void write(DataOutputStream dataOutputStream) throws IOException {
-        dataOutputStream.writeInt(gId);
-        dataOutputStream.writeInt(gX);
-        dataOutputStream.writeInt(gY);
-        dataOutputStream.writeInt(gColor);
-        dataOutputStream.writeBoolean(gReady);
+        synchronized(this) {
+            dataOutputStream.writeInt(gId);
+            dataOutputStream.writeInt(gX);
+            dataOutputStream.writeInt(gY);
+            dataOutputStream.writeInt(gColor);
+            dataOutputStream.writeBoolean(gReady);
+        }
     }
 
     public void setValues(ClientInfo otherClientInfo) {
-        gX = otherClientInfo.getX();
-        gY = otherClientInfo.getY();
-        gColor = otherClientInfo.getColor();
-        gReady = otherClientInfo.isReady();
+        synchronized(this) {
+            gX = otherClientInfo.getX();
+            gY = otherClientInfo.getY();
+            gColor = otherClientInfo.getColor();
+            gReady = otherClientInfo.isReady();
+        }
     }
 
     public void draw(Canvas canvas) {
