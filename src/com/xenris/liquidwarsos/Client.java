@@ -203,7 +203,6 @@ public class Client extends BaseActivity
 
             gameState.step(gDotSimulation, false);
 
-            Log.message("here " + gDotSimulation.getStepNumber() + " " + gameState.getStepNumber());
             if(gDotSimulation.getStepNumber() == gameState.getStepNumber()) {
                 gameState = null;
             }
