@@ -26,6 +26,7 @@ import java.util.*;
 public class Server extends Thread {
     private ArrayList<ClientConnection> gClientConnections = new ArrayList<ClientConnection>();
     private GameState gGameState = new GameState();
+    private DotSimulation gDotSimulation = new DotSimulation();
 
     @Override
     public void run() {
@@ -55,6 +56,9 @@ public class Server extends Thread {
 
     private void updateGameState() {
         if(gGameState.state() == GameState.IN_PLAY) {
+            for(int i = 0; i < 10; i++) {
+                gGameState.step(gDotSimulation, true);
+            }
         } else if(gGameState.state() == GameState.COUNTDOWN) {
             gGameState.state(GameState.IN_PLAY);
         } else if(gGameState.state() == GameState.MAIN_MENU) {
@@ -74,8 +78,6 @@ public class Server extends Thread {
                 gGameState.state(GameState.COUNTDOWN);
             }
         }
-
-        // TODO Step game.
     }
 
     public void sendGameState() {
@@ -125,5 +127,9 @@ public class Server extends Thread {
         final int id = clientConnection.getConnectionId();
         gGameState.addClientInfo(id);
         gClientConnections.add(clientConnection);
+    }
+
+    public DotSimulation getDotSimulation() {
+        return gDotSimulation;
     }
 }

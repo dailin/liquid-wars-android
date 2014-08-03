@@ -26,6 +26,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class MyRenderer implements GLSurfaceView.Renderer {
     private GameState gGameState;
     private ClientInfo gClientInfo;
+    private DotSimulation gDotSimulation;
     private float gWidth;
     private float gHeight;
     private Sprite touchSprite;
@@ -47,7 +48,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         touchSprite = new Sprite(gl, gContext, R.drawable.touch);
         touchSprite.scale(10, 10);
-//        NativeInterface.onSurfaceCreated();
     }
 
     @Override
@@ -61,8 +61,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if(gClientInfo != null) {
                 touchSprite.draw(gl, gClientInfo.getX(), gClientInfo.getY()); // TODO Draw at each finger touch point.
             }
+
+            if(gDotSimulation != null) {
+                gDotSimulation.draw();
+            }
         }
-//        NativeInterface.onDrawFrame();
     }
 
     @Override
@@ -78,7 +81,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         gl.glMatrixMode(GL10.GL_MODELVIEW);
         gl.glLoadIdentity();
-//        NativeInterface.onSurfaceChanged(width, height);
     }
 
     public void setGameStateToDraw(GameState gameState) {
@@ -90,6 +92,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void setClientInfoToDraw(ClientInfo clientInfo) {
         synchronized(this) {
             gClientInfo = clientInfo;
+        }
+    }
+
+    public void setDotSimulationToDraw(DotSimulation dotSimulation) {
+        synchronized(this) {
+            gDotSimulation = dotSimulation;
         }
     }
 }

@@ -28,6 +28,7 @@ public class GameState {
 
     private ArrayList<ClientInfo> gClientInfos;
     private int gState = MAIN_MENU;
+    private long gStepNumber = 0;
 
     public GameState() {
         gClientInfos = new ArrayList<ClientInfo>();
@@ -43,6 +44,7 @@ public class GameState {
         }
 
         gState = dataInputStream.readInt();
+        gStepNumber = dataInputStream.readLong();
     }
 
     public void write(DataOutputStream dataOutputStream) throws IOException {
@@ -53,6 +55,7 @@ public class GameState {
         }
 
         dataOutputStream.writeInt(gState);
+        dataOutputStream.writeLong(gStepNumber);
     }
 
     public void addClientInfo(int id) {
@@ -91,6 +94,16 @@ public class GameState {
         }
     }
 
+    public void step(DotSimulation dotSimulation, boolean isServer) {
+        if(isServer) {
+            gStepNumber++;
+        }
+
+        if(dotSimulation.getStepNumber() < gStepNumber) {
+            dotSimulation.step();
+        }
+    }
+
     public void draw(Canvas canvas) {
         for(ClientInfo playerState : gClientInfos) {
             playerState.draw(canvas);
@@ -103,5 +116,9 @@ public class GameState {
 
     public void state(int state) {
         gState = state;
+    }
+
+    public long getStepNumber() {
+        return gStepNumber;
     }
 }

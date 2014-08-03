@@ -53,6 +53,8 @@ public class Client extends BaseActivity
     private GLSurfaceView gGLSurfaceView;
     private MyRenderer gRenderer;
 
+    private DotSimulation gDotSimulation;
+
     private Bluetooth gBluetooth;
 
     private AlertDialog gSearchAlertDialog;
@@ -81,10 +83,12 @@ public class Client extends BaseActivity
 
         gServer = new Server();
         gServerConnection = gServer.createConnection();
+        gDotSimulation = gServer.getDotSimulation();
         gServerConnection.start();
         gServer.start();
         gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
         gRenderer.setClientInfoToDraw(gMe);
+        gRenderer.setDotSimulationToDraw(gDotSimulation);
 
         gGameThread = new Thread(this);
         gGameThread.setName("Client Game Loop Thread");
@@ -164,37 +168,60 @@ public class Client extends BaseActivity
     @Override
     public void run() {
         gRunning = true;
-        long previousTime = System.currentTimeMillis();
         GameState gameState = null;
         final MyApplication application = (MyApplication)getApplication();
         final Handler uiHandler = application.getUiHandler();
 
-        while(gRunning) {
-            final long currentTime = System.currentTimeMillis();
+        int sendCountdown = 6;
 
+        while(gRunning) {
             // Send 10 times per second.
-            if((currentTime - previousTime) >= 100) {
+            sendCountdown--;
+            if(sendCountdown <= 0) {
+                sendCountdown = 6;
                 gServerConnection.sendClientInfo(gMe);
-                previousTime = currentTime;
             }
 
-            // If a new GameState has arrived from the server.
-            final GameState newGameState = gServerConnection.getNextGameState();
+            if(gameState == null) {
+                while(true) {
+                    gameState = gServerConnection.getNextGameState();
 
-            if(newGameState != null) {
-                gameState = newGameState;
+                    if(gameState != null) {
+                        break;
+                    } else {
+                        Thread.yield();
+                    }
+                }
+
                 gRenderer.setGameStateToDraw(gameState);
+
+                // TODO if in game menu then next two lines.
                 final Message message = uiHandler.obtainMessage(Constants.UPDATE_UI, gameState);
                 uiHandler.sendMessage(message);
+
                 if(gameState.state() == GameState.IN_PLAY) {
                     if(gameMenuIsVisible()) {
+                        // This happens when switching from game menu to game.
+                        // TODO Make this system better.
                         uiHandler.sendEmptyMessage(Constants.SWITCH_TO_GAME_VIEW);
                     }
                     gMe.setReady(false);
                 }
             }
 
+            gameState.step(gDotSimulation, false);
+
+            Log.message("here " + gDotSimulation.getStepNumber() + " " + gameState.getStepNumber());
+            if(gDotSimulation.getStepNumber() == gameState.getStepNumber()) {
+                gameState = null;
+            }
+
             Thread.yield();
+//            Util.sleep(15); // XXX Bad time regulation.
+        }
+
+        if(gDotSimulation != null) {
+            gDotSimulation.delete();
         }
 
         gServerConnection.close();
@@ -270,11 +297,17 @@ public class Client extends BaseActivity
 
     @Override
     public void onConnectionMade(BluetoothServerConnection bluetoothServerConnection, String serverName) {
+        if(gDotSimulation != null) {
+            gDotSimulation.delete();
+        }
+
         gServerConnection.close();
         gServerConnection = bluetoothServerConnection;
         gServerConnection.start();
         gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
         gRenderer.setClientInfoToDraw(gMe);
+        gDotSimulation = new DotSimulation();
+        gRenderer.setDotSimulationToDraw(gDotSimulation);
 
         final MyApplication application = (MyApplication)getApplication();
         final Handler uiHandler = application.getUiHandler();
