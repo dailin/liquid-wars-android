@@ -296,8 +296,7 @@ public class Client extends BaseActivity
         gServerConnection.close();
         gServerConnection = bluetoothServerConnection;
         gServerConnection.start();
-        // TODO Rather than creating a new ClientInfo, just change the id.
-        gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
+        gMe.setId(gServerConnection.getConnectionId());
         gServerConnection.setClientInfoToSend(gMe);
         gRenderer.setClientInfoToDraw(gMe);
         gDotSimulation = new DotSimulation();

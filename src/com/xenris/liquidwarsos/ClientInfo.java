@@ -49,6 +49,10 @@ public class ClientInfo {
         return gId;
     }
 
+    public void setId(int id) {
+        gId = id;
+    }
+
     public int getX() {
         return gX;
     }
