@@ -42,7 +42,13 @@ public class ColourPickerDialog extends Dialog implements ColourPickerView.Callb
         gListener.onSelect(this, colour);
     }
 
+    @Override
+    public void onChange(int colour) {
+        gListener.onChange(this, colour);
+    }
+
     public interface ColourPickerListener {
         public void onSelect(ColourPickerDialog dialog, int colour);
+        public void onChange(ColourPickerDialog dialog, int colour);
     }
 }

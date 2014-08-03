@@ -251,6 +251,11 @@ public class Client extends BaseActivity
                 public void onSelect(ColourPickerDialog dialog, int colour) {
                     gMe.setColor(colour);
                 }
+
+                @Override
+                public void onChange(ColourPickerDialog dialog, int colour) {
+                    gMe.setColor(colour);
+                }
             };
         Rect displayRectangle = new Rect();
         getWindow().getDecorView().getWindowVisibleDisplayFrame(displayRectangle);

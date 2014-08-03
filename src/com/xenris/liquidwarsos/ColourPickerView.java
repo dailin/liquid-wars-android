@@ -101,6 +101,7 @@ public class ColourPickerView extends View {
     private void updateColour(int x, int y) {
         final int colour = calculateColour(x, y);
         gCenterPaint.setColor(colour);
+        gCallbacks.onChange(colour);
         invalidate();
     }
 
@@ -118,5 +119,6 @@ public class ColourPickerView extends View {
 
     public interface Callbacks {
         public void onSelect(int colour);
+        public void onChange(int colour);
     }
 }
