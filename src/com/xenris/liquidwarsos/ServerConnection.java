@@ -72,7 +72,9 @@ public class ServerConnection {
     }
 
     public GameState getNextGameState() {
-        return gGameStateQueue.poll();
+        synchronized(gGameStateQueue) {
+            return gGameStateQueue.poll();
+        }
     }
 
     private class ReceivingThread extends Thread {
@@ -89,7 +91,9 @@ public class ServerConnection {
                     break;
                 }
 
-                gGameStateQueue.add(gameState);
+                synchronized(gGameStateQueue) {
+                    gGameStateQueue.add(gameState);
+                }
             }
 
             close();
