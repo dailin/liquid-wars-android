@@ -20,11 +20,14 @@ package com.xenris.liquidwarsos;
 import java.io.*;
 import java.util.*;
 
-public class ServerConnection extends Thread {
+public class ServerConnection {
     private int gConnectionId;
     private DataOutputStream gDataOutputStream;
     private DataInputStream gDataInputStream;
     private LinkedList<GameState> gGameStateQueue = new LinkedList<GameState>();
+    private ClientInfo gClientInfo;
+    private ReceivingThread gReceivingThread;
+    private SendingThread gSendingThread;
 
     public ServerConnection() {
     }
@@ -45,30 +48,17 @@ public class ServerConnection extends Thread {
         }
     }
 
-    @Override
-    public void run() {
-        setName("ServerConnection");
+    public void start() {
+        gReceivingThread = new ReceivingThread();
+        gSendingThread = new SendingThread();
 
-        while(true) {
-            GameState gameState = null;
-
-            try {
-                gameState = new GameState(gDataInputStream);
-            } catch (IOException e) {
-                break;
-            }
-
-            gGameStateQueue.add(gameState);
-        }
-
-        close();
+        gReceivingThread.start();
+        gSendingThread.start();
     }
 
-    public void sendClientInfo(ClientInfo clientInfo) {
-        try {
-            clientInfo.write(gDataOutputStream);
-        } catch (IOException e) {
-//            Log.message(Log.tag, "Error: failed to send player state in ServerConnection");
+    public void setClientInfoToSend(ClientInfo clientInfo) {
+        synchronized(this) {
+            gClientInfo = clientInfo;
         }
     }
 
@@ -83,5 +73,48 @@ public class ServerConnection extends Thread {
 
     public GameState getNextGameState() {
         return gGameStateQueue.poll();
+    }
+
+    private class ReceivingThread extends Thread {
+        @Override
+        public void run() {
+            setName("ServerConnection ReceivingThread");
+
+            while(true) {
+                GameState gameState = null;
+
+                try {
+                    gameState = new GameState(gDataInputStream);
+                } catch (IOException e) {
+                    break;
+                }
+
+                gGameStateQueue.add(gameState);
+            }
+
+            close();
+        }
+    }
+
+    // Send ten times per second.
+    private class SendingThread extends Thread {
+        @Override
+        public void run() {
+            setName("ServerConnection SendingThread");
+
+            while(true) {
+                try {
+                    if(gClientInfo != null) {
+                        synchronized(this) {
+                            gClientInfo.write(gDataOutputStream);
+                        }
+                    }
+                } catch (IOException e) {
+        //            Log.message(Log.tag, "Error: failed to send player state in ServerConnection");
+                }
+
+                Util.sleep(100);
+            }
+        }
     }
 }

@@ -87,6 +87,7 @@ public class Client extends BaseActivity
         gServerConnection.start();
         gServer.start();
         gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
+        gServerConnection.setClientInfoToSend(gMe);
         gRenderer.setClientInfoToDraw(gMe);
         gRenderer.setDotSimulationToDraw(gDotSimulation);
 
@@ -172,16 +173,7 @@ public class Client extends BaseActivity
         final MyApplication application = (MyApplication)getApplication();
         final Handler uiHandler = application.getUiHandler();
 
-        int sendCountdown = 6;
-
         while(gRunning) {
-            // Send 10 times per second.
-            sendCountdown--;
-            if(sendCountdown <= 0) {
-                sendCountdown = 6;
-                gServerConnection.sendClientInfo(gMe);
-            }
-
             if(gameState == null) {
                 while(true) {
                     gameState = gServerConnection.getNextGameState();
@@ -304,7 +296,9 @@ public class Client extends BaseActivity
         gServerConnection.close();
         gServerConnection = bluetoothServerConnection;
         gServerConnection.start();
+        // TODO Rather than creating a new ClientInfo, just change the id.
         gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
+        gServerConnection.setClientInfoToSend(gMe);
         gRenderer.setClientInfoToDraw(gMe);
         gDotSimulation = new DotSimulation();
         gRenderer.setDotSimulationToDraw(gDotSimulation);
