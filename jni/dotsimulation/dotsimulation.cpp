@@ -32,7 +32,7 @@ void DotSimulation::draw() {
 }
 
 void DotSimulation::step() {
-    g += (float)direction * 0.05;
+    g += (float)direction * 0.01;
 
     if(g > 1) {
         g = 1;
