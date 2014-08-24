@@ -26,7 +26,7 @@ import java.util.*;
 public class Server extends Thread {
     private ArrayList<ClientConnection> gClientConnections = new ArrayList<ClientConnection>();
     private GameState gGameState = new GameState();
-    private DotSimulation gDotSimulation = new DotSimulation();
+    private DotSimulation gDotSimulation;
 
     @Override
     public void run() {
@@ -39,7 +39,9 @@ public class Server extends Thread {
 
             sendGameState();
 
-            removeClosedConnections();
+            if(gGameState.state() == GameState.MAIN_MENU) {
+                removeClosedConnections();
+            }
 
             Util.sleep(100); // XXX Dodgy speed regulation. 10 times per second.
         }
@@ -55,13 +57,23 @@ public class Server extends Thread {
     }
 
     private void updateGameState() {
-        if(gGameState.state() == GameState.IN_PLAY) {
+        final int state = gGameState.state();
+
+        if(state == GameState.IN_PLAY) {
+            gGameState.preStep(gDotSimulation);
             for(int i = 0; i < 10; i++) {
                 gGameState.step(gDotSimulation, true);
+                // XXX This needs some sort of time management.
+                Util.sleep(20);
             }
-        } else if(gGameState.state() == GameState.COUNTDOWN) {
+        } else if(state == GameState.COUNTDOWN) {
             gGameState.state(GameState.IN_PLAY);
-        } else if(gGameState.state() == GameState.MAIN_MENU) {
+        } else if(state == GameState.MAIN_MENU) {
+            if(gDotSimulation != null) {
+                gDotSimulation.delete();
+                gDotSimulation = null;
+            }
+
             // Check if everyone is ready to start the game.
             boolean everyoneIsReady = true;
 
@@ -76,6 +88,10 @@ public class Server extends Thread {
 
             if(everyoneIsReady) {
                 gGameState.state(GameState.COUNTDOWN);
+                final int playerCount = gGameState.getPlayerCount();
+                final int[] colors = gGameState.getTeamColors();
+                final int teamSize = gGameState.getTeamSize();
+                gDotSimulation = new DotSimulation(0, playerCount, colors, teamSize);
             }
         }
     }

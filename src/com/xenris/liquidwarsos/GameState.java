@@ -22,7 +22,7 @@ import java.io.*;
 import java.util.*;
 
 public class GameState {
-    public static final int MAIN_MENU = 1;
+    public static final int MAIN_MENU = 1; // TODO Change this to GAME_MENU.
     public static final int COUNTDOWN = 2;
     public static final int IN_PLAY = 3;
 
@@ -86,6 +86,7 @@ public class GameState {
         return null;
     }
 
+    // XXX This shouldn't really be here. Out of GameState's scope.
     public void updatePlayersList(PlayerListView playerListView) {
         playerListView.removeAllPlayers();
 
@@ -94,19 +95,26 @@ public class GameState {
         }
     }
 
+    public void preStep(DotSimulation dotSimulation) {
+        if(dotSimulation != null) {
+            final int numPlayers = gClientInfos.size();
+
+            for(int i = 0; i < numPlayers; i++) {
+                final ClientInfo clientInfo = gClientInfos.get(i);
+                dotSimulation.setPlayerPosition(i, clientInfo.getX(), clientInfo.getY());
+            }
+        }
+    }
+
     public void step(DotSimulation dotSimulation, boolean isServer) {
         if(isServer) {
             gStepNumber++;
         }
 
-        if(dotSimulation.getStepNumber() < gStepNumber) {
-            dotSimulation.step();
-        }
-    }
-
-    public void draw(Canvas canvas) {
-        for(ClientInfo playerState : gClientInfos) {
-            playerState.draw(canvas);
+        if(dotSimulation != null) {
+            if(dotSimulation.getStepNumber() < gStepNumber) {
+                dotSimulation.step();
+            }
         }
     }
 
@@ -120,5 +128,24 @@ public class GameState {
 
     public long getStepNumber() {
         return gStepNumber;
+    }
+
+    public int getPlayerCount() {
+        return gClientInfos.size();
+    }
+
+    public int[] getTeamColors() {
+        final int playerCount = getPlayerCount();
+        int[] colors = new int[playerCount];
+
+        for(int i = 0; i < playerCount; i++) {
+            colors[i] = gClientInfos.get(i).getColor();
+        }
+
+        return colors;
+    }
+
+    public int getTeamSize() {
+        return 400;
     }
 }

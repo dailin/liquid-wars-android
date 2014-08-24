@@ -83,13 +83,11 @@ public class Client extends BaseActivity
 
         gServer = new Server();
         gServerConnection = gServer.createConnection();
-        gDotSimulation = gServer.getDotSimulation();
         gServerConnection.start();
         gServer.start();
         gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
         gServerConnection.setClientInfoToSend(gMe);
         gRenderer.setClientInfoToDraw(gMe);
-        gRenderer.setDotSimulationToDraw(gDotSimulation);
 
         gGameThread = new Thread(this);
         gGameThread.setName("Client Game Loop Thread");
@@ -174,37 +172,50 @@ public class Client extends BaseActivity
         final Handler uiHandler = application.getUiHandler();
 
         while(gRunning) {
+            gameState = gServerConnection.getNextGameState();
             if(gameState == null) {
-                while(true) {
-                    gameState = gServerConnection.getNextGameState();
-
-                    if(gameState != null) {
-                        break;
-                    } else {
-                        Thread.yield();
-                    }
-                }
-
-                gRenderer.setGameStateToDraw(gameState);
-
-                // TODO if in game menu then next two lines.
-                final Message message = uiHandler.obtainMessage(Constants.UPDATE_UI, gameState);
-                uiHandler.sendMessage(message);
-
-                if(gameState.state() == GameState.IN_PLAY) {
-                    if(gameMenuIsVisible()) {
-                        // This happens when switching from game menu to game.
-                        // TODO Make this system better.
-                        uiHandler.sendEmptyMessage(Constants.SWITCH_TO_GAME_VIEW);
-                    }
-                    gMe.setReady(false);
-                }
+                Thread.yield();
+                continue;
             }
 
-            gameState.step(gDotSimulation, false);
+            gRenderer.setGameStateToDraw(gameState);
 
-            if(gDotSimulation.getStepNumber() == gameState.getStepNumber()) {
-                gameState = null;
+            final int state = gameState.state();
+
+            if(state == GameState.MAIN_MENU) {
+                if(!gameMenuIsVisible()) {
+                    uiHandler.sendEmptyMessage(Constants.SWITCH_TO_GAME_MENU);
+                }
+
+                uiHandler.sendMessage(uiHandler.obtainMessage(Constants.UPDATE_UI, gameState));
+            } else if(state == GameState.COUNTDOWN) {
+                if(gDotSimulation == null) {
+                    if(gServer != null) {
+                        gDotSimulation = gServer.getDotSimulation();
+                    } else {
+                        final int playerCount = gameState.getPlayerCount();
+                        final int[] colors = gameState.getTeamColors();
+                        final int teamSize = gameState.getTeamSize();
+
+                        gDotSimulation = new DotSimulation(0, playerCount, colors, teamSize);
+                    }
+
+                    gRenderer.setDotSimulationToDraw(gDotSimulation);
+                }
+            } else if(state == GameState.IN_PLAY) {
+                if(gameMenuIsVisible()) {
+                    uiHandler.sendEmptyMessage(Constants.SWITCH_TO_GAME_VIEW);
+                    gMe.setReady(false);
+                }
+
+                if(gServer == null) {
+                    gameState.preStep(gDotSimulation);
+                    for(int i = 0; i < 10; i++) {
+                        gameState.step(gDotSimulation, false);
+                        // XXX This needs some sort of time management.
+                        Util.sleep(20);
+                    }
+                }
             }
 
             Thread.yield();
@@ -222,13 +233,11 @@ public class Client extends BaseActivity
         final int action = event.getActionMasked();
         final float x = event.getX() / gGLSurfaceView.getWidth();
         final float y = event.getY() / gGLSurfaceView.getHeight();
-        final float sx = x * 800;
-        final float sy = y * 480;
 
         if(action == MotionEvent.ACTION_MOVE) {
             // XXX gMe probably needs to be synchronized.
-            gMe.setX((int)sx);
-            gMe.setY((int)sy);
+            gMe.setX(x);
+            gMe.setY(y);
         }
 
         return true;
@@ -288,9 +297,7 @@ public class Client extends BaseActivity
 
     @Override
     public void onConnectionMade(BluetoothServerConnection bluetoothServerConnection, String serverName) {
-        if(gDotSimulation != null) {
-            gDotSimulation.delete();
-        }
+        gServer = null;
 
         gServerConnection.close();
         gServerConnection = bluetoothServerConnection;
@@ -298,8 +305,6 @@ public class Client extends BaseActivity
         gMe.setId(gServerConnection.getConnectionId());
         gServerConnection.setClientInfoToSend(gMe);
         gRenderer.setClientInfoToDraw(gMe);
-        gDotSimulation = new DotSimulation();
-        gRenderer.setDotSimulationToDraw(gDotSimulation);
 
         final MyApplication application = (MyApplication)getApplication();
         final Handler uiHandler = application.getUiHandler();

@@ -17,12 +17,21 @@
 
 #include "interface.hpp"
 
-JNIEXPORT jlong JNICALL Java_com_xenris_liquidwarsos_DotSimulation_newNative(JNIEnv* env, jobject jobj) {
-    DotSimulation* dotSimulation = new DotSimulation();
+JNIEXPORT jlong JNICALL Java_com_xenris_liquidwarsos_DotSimulation_newNative(
+    JNIEnv* env, jobject jobj, jlong seed, jint numberOfPlayers, jintArray colors, jint teamSize, jint width, jint height) {
+
+    int* nColors = env->GetIntArrayElements(colors, NULL);
+
+    DotSimulation* dotSimulation = new DotSimulation(seed, numberOfPlayers, nColors, teamSize, width, height);
+
+    env->ReleaseIntArrayElements(colors, nColors, 0);
+
     return (jlong)dotSimulation;
 }
 
-JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_deleteNative(JNIEnv* env, jobject jobj, jlong pointer) {
+JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_deleteNative(
+    JNIEnv* env, jobject jobj, jlong pointer) {
+
     DotSimulation* dotSimulation = (DotSimulation*)pointer;
 
     if(dotSimulation != NULL) {
@@ -30,7 +39,9 @@ JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_deleteNative(J
     }
 }
 
-JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_drawNative(JNIEnv* env, jobject jobj, jlong pointer) {
+JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_drawNative(
+    JNIEnv* env, jobject jobj, jlong pointer) {
+
     DotSimulation* dotSimulation = (DotSimulation*)pointer;
 
     if(dotSimulation != NULL) {
@@ -38,7 +49,9 @@ JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_drawNative(JNI
     }
 }
 
-JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_stepNative(JNIEnv* env, jobject jobj, jlong pointer) {
+JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_stepNative(
+    JNIEnv* env, jobject jobj, jlong pointer) {
+
     DotSimulation* dotSimulation = (DotSimulation*)pointer;
 
     if(dotSimulation != NULL) {
@@ -46,49 +59,12 @@ JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_stepNative(JNI
     }
 }
 
+JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_setPlayerPositionNative(
+    JNIEnv* env, jobject jobj, jlong pointer, jint playerId, jfloat x, jfloat y) {
 
+    DotSimulation* dotSimulation = (DotSimulation*)pointer;
 
-
-//void Java_com_xenris_liquidwarsos_NativeInterface_init(JNIEnv* env, jobject jobj, jobject am) {
-//    acLib = new ACLib(env, jobj, am);
-//}
-
-//void Java_com_xenris_liquidwarsos_NativeInterface_uninit(JNIEnv* env, jobject jobj) {
-//    acLib->destroy(env, jobj);
-//    delete(acLib);
-//    acLib = NULL;
-//}
-
-//void Java_com_xenris_liquidwarsos_NativeInterface_createGame(JNIEnv* env, jobject jobj, jint team, jint map, jint seed, jint dotsPerTeam) {
-//    createGame(team, map, seed, dotsPerTeam);
-//}
-
-//void Java_com_xenris_liquidwarsos_NativeInterface_destroyGame(JNIEnv* env, jobject jobj) {
-//    destroyGame();
-//}
-
-//void Java_com_xenris_liquidwarsos_NativeInterface_stepDots(JNIEnv* env, jobject jobj) {
-//    stepDots();
-//}
-
-//void Java_com_xenris_liquidwarsos_NativeInterface_setPlayerPosition(JNIEnv* env, jobject jobj, jint team, jshortArray jxa, jshortArray jya) {
-//    short* x = env->GetShortArrayElements(jxa, NULL);
-//    short* y = env->GetShortArrayElements(jya, NULL);
-
-//    setPlayerPosition(team, x, y);
-
-//    env->ReleaseShortArrayElements(jxa, x, 0);
-//    env->ReleaseShortArrayElements(jya, y, 0);
-//}
-
-//int Java_com_xenris_liquidwarsos_NativeInterface_getNearestDot(JNIEnv* env, jobject jobj, jint p, jshort px, jshort py) {
-//    return getNearestDot(p, px, py);
-//}
-
-//int Java_com_xenris_liquidwarsos_NativeInterface_teamScore(JNIEnv* env, jobject jobj, jint p) {
-//    return teamScore(p);
-//}
-
-//void Java_com_xenris_liquidwarsos_NativeInterface_setTimeSidebar(JNIEnv* env, jobject jobj, jfloat t) {
-//    setTimeSidebar(t);
-//}
+    if(dotSimulation != NULL) {
+        dotSimulation->setPlayerPosition(playerId, x, y);
+    }
+}

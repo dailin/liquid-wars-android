@@ -38,7 +38,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        gl.glEnable(GL10.GL_TEXTURE_2D);
         gl.glEnable(GL10.GL_DEPTH_TEST);
         gl.glShadeModel(GL10.GL_SMOOTH);
         gl.glEnable(GL10.GL_BLEND);
@@ -58,12 +57,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             gl.glLoadIdentity();
 
-            if(gClientInfo != null) {
-                touchSprite.draw(gl, gClientInfo.getX(), gClientInfo.getY()); // TODO Draw at each finger touch point.
-            }
-
             if(gDotSimulation != null) {
                 gDotSimulation.draw();
+            }
+
+            if(gClientInfo != null) {
+                touchSprite.draw(gl, gClientInfo.getX(), gClientInfo.getY(), gWidth, gHeight); // TODO Draw at each finger touch point.
             }
         }
     }
@@ -77,10 +76,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         gl.glMatrixMode(GL10.GL_PROJECTION);
         gl.glLoadIdentity();
 
-        gl.glOrthof(0, Constants.WIDTH, Constants.HEIGHT, 0, -10, 10);
+        gl.glOrthof(0, 1, 1, 0, -1, 1);
 
         gl.glMatrixMode(GL10.GL_MODELVIEW);
         gl.glLoadIdentity();
+
+        final float rw = (float)width / (float)Constants.WIDTH;
+        final float rh = (float)height / (float)Constants.HEIGHT;
+
+        final float m = Math.max(rw, rh);
+
+        final float gPointSize = m + 1.5f;
+
+        gl.glPointSize(gPointSize); // XXX Should this be in native?
     }
 
     public void setGameStateToDraw(GameState gameState) {

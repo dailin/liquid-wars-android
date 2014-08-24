@@ -24,17 +24,18 @@ public class DotSimulation {
     private boolean gIsValid = false;
     private long gStepNumber = 0;
 
-    private static native long newNative();
+    private static native long newNative(long seed, int numberOfPlayers, int[] colors, int teamSize, int width, int height);
     private static native void deleteNative(long pointer);
     private static native void drawNative(long pointer);
     private static native void stepNative(long pointer);
+    private static native void setPlayerPositionNative(long pointer, int playerId, float x, float y);
 
     static {
         System.loadLibrary("nativeinterface");
     }
 
-    public DotSimulation() {
-        gNativePointer = newNative();
+    public DotSimulation(long seed, int numberOfPlayers, int[] colors, int teamSize) {
+        gNativePointer = newNative(seed, numberOfPlayers, colors, teamSize, Constants.WIDTH, Constants.HEIGHT);
 
         if(gNativePointer != 0) {
             gIsValid = true;
@@ -75,6 +76,15 @@ public class DotSimulation {
 
     public long getStepNumber() {
         return gStepNumber;
+    }
+
+    // TODO Currently playerId is an index, but it possibly should be an id.
+    public void setPlayerPosition(int playerId, float x, float y) {
+        if(gIsValid) {
+            synchronized(this) {
+                setPlayerPositionNative(gNativePointer, playerId, x, y);
+            }
+        }
     }
 
 //    public static native void onSurfaceCreated();

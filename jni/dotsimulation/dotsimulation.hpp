@@ -19,16 +19,40 @@
 #define DOTSIMULATION_HPP
 
 #include <GLES/gl.h>
+#include <vector>
+#include "dot.hpp"
+#include "random.hpp"
+#include "player.hpp"
+#include "info.hpp"
+#include "spiral.hpp"
+#include "map.hpp"
+
+using namespace std;
 
 class DotSimulation {
     private:
-        float g;
-        int direction;
+        vector<Dot*> gDots;
+        Player* gPlayers;
+        Dot*** gField;
+        Map* gMap;
+        vector<float> gPoints;
+        vector<float> gColours;
+        Random* gRandom;
+        int gNumberOfPlayers;
+        int gTeamSize;
+        int gWidth;
+        int gHeight;
+
     public:
-        DotSimulation();
+        DotSimulation(unsigned int seed, int numberOfPlayers, int* colors, int teamSize, int width, int height);
         ~DotSimulation();
+        void placeTeams();
         void draw();
         void step();
+        void setPlayerPosition(int playerId, float x, float y);
+        void moveDotToward(Dot* dot, const Player* player);
+        void turnClockwise(int dx, int dy, int* x, int* y);
+        void turnAnticlockwise(int dx, int dy, int* x, int* y);
 };
 
 #endif

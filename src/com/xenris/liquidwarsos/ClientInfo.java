@@ -23,8 +23,8 @@ import java.io.*;
 public class ClientInfo {
     private static final Paint gPaint = new Paint();
     private int gId;
-    private int gX;
-    private int gY;
+    private float gX = 0.5f;
+    private float gY = 0.5f;
     private int gColor;
     private boolean gReady = false;
     private boolean gIsClients = false;
@@ -55,21 +55,21 @@ public class ClientInfo {
         }
     }
 
-    public int getX() {
+    public float getX() {
         return gX;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         synchronized(this) {
             gX = x;
         }
     }
 
-    public int getY() {
+    public float getY() {
         return gY;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         synchronized(this) {
             gY = y;
         }
@@ -98,8 +98,8 @@ public class ClientInfo {
     public ClientInfo(DataInputStream dataInputStream) throws IOException {
         synchronized(this) {
             gId = dataInputStream.readInt();
-            gX = dataInputStream.readInt();
-            gY = dataInputStream.readInt();
+            gX = dataInputStream.readFloat();
+            gY = dataInputStream.readFloat();
             gColor = dataInputStream.readInt();
             gReady = dataInputStream.readBoolean();
         }
@@ -108,8 +108,8 @@ public class ClientInfo {
     public void write(DataOutputStream dataOutputStream) throws IOException {
         synchronized(this) {
             dataOutputStream.writeInt(gId);
-            dataOutputStream.writeInt(gX);
-            dataOutputStream.writeInt(gY);
+            dataOutputStream.writeFloat(gX);
+            dataOutputStream.writeFloat(gY);
             dataOutputStream.writeInt(gColor);
             dataOutputStream.writeBoolean(gReady);
         }
@@ -121,16 +121,6 @@ public class ClientInfo {
             gY = otherClientInfo.getY();
             gColor = otherClientInfo.getColor();
             gReady = otherClientInfo.isReady();
-        }
-    }
-
-    public void draw(Canvas canvas) {
-        if(gIsClients) {
-            gPaint.setColor(Color.RED);
-            canvas.drawCircle(gX, gY, 50, gPaint);
-        } else {
-            gPaint.setColor(gColor);
-            canvas.drawCircle(gX, gY, 200, gPaint);
         }
     }
 }

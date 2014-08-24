@@ -23,31 +23,20 @@
 
 extern "C" {
 
-JNIEXPORT jlong JNICALL Java_com_xenris_liquidwarsos_DotSimulation_newNative(JNIEnv* env, jobject jobj);
-JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_deleteNative(JNIEnv* env, jobject jobj, jlong pointer);
-JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_drawNative(JNIEnv* env, jobject jobj, jlong pointer);
-JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_stepNative(JNIEnv* env, jobject jobj, jlong pointer);
+JNIEXPORT jlong JNICALL Java_com_xenris_liquidwarsos_DotSimulation_newNative(
+    JNIEnv* env, jobject jobj, jlong seed, jint numberOfPlayers, jintArray colors, jint teamSize, jint width, jint height);
 
+JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_deleteNative(
+    JNIEnv* env, jobject jobj, jlong pointer);
 
+JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_drawNative(
+    JNIEnv* env, jobject jobj, jlong pointer);
 
+JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_stepNative(
+    JNIEnv* env, jobject jobj, jlong pointer);
 
-//void Java_com_xenris_liquidwarsos_NativeInterface_init(JNIEnv* env, jobject jobj, jobject am);
-//void Java_com_xenris_liquidwarsos_NativeInterface_uninit(JNIEnv* env, jobject jobj);
-//void Java_com_xenris_liquidwarsos_NativeInterface_createGame(JNIEnv* env, jobject jobj, jint team, jint map, jint seed, jint dotsPerTeam);
-//void Java_com_xenris_liquidwarsos_NativeInterface_destroyGame(JNIEnv* env, jobject jobj);
-//void Java_com_xenris_liquidwarsos_NativeInterface_stepDots(JNIEnv* env, jobject jobj);
-//void Java_com_xenris_liquidwarsos_NativeInterface_setPlayerPosition(JNIEnv* env, jobject jobj, jint team, jshortArray jxa, jshortArray jya);
-//int Java_com_xenris_liquidwarsos_NativeInterface_getNearestDot(JNIEnv* env, jobject jobj, jint p, jshort px, jshort py);
-//int Java_com_xenris_liquidwarsos_NativeInterface_teamScore(JNIEnv* env, jobject jobj, jint p);
-//void Java_com_xenris_liquidwarsos_NativeInterface_setTimeSidebar(JNIEnv* env, jobject jobj, jfloat t);
+JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_setPlayerPositionNative(
+    JNIEnv* env, jobject jobj, jlong pointer, jint playerId, jfloat x, jfloat y);
 }
-
-//void createGame(int team, int map, int seed, int dotsPerTeam);
-//void destroyGame();
-//void stepDots();
-//void setPlayerPosition(int team, short* x, short* y);
-//int getNearestDot(int p, short px, short py);
-//int teamScore(int p);
-//void setTimeSidebar(float t);
 
 #endif

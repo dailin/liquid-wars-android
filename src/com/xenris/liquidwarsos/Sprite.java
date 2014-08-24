@@ -72,13 +72,19 @@ public class Sprite {
         bitmap.recycle();
     }
 
-    public void draw(GL10 gl, float x, float y) {
+    public void draw(GL10 gl, float x, float y, float w, float h) {
+        gl.glPushMatrix();
+
+        gl.glEnable(GL10.GL_TEXTURE_2D);
+
         gl.glBindTexture(GL10.GL_TEXTURE_2D, textures[0]);
 
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 
-        gl.glTranslatef(x, y, 0);
+        gl.glScalef(1f/w, 1f/h, 1);
+
+        gl.glTranslatef(x * w, y * h, 0);
         gl.glScalef(gScaleX, gScaleY, 1);
 
         gl.glFrontFace(GL10.GL_CW);
@@ -90,6 +96,10 @@ public class Sprite {
 
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
+
+        gl.glDisable(GL10.GL_TEXTURE_2D);
+
+        gl.glPopMatrix();
     }
 
     public void scale(float x, float y) {
