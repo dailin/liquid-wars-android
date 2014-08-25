@@ -41,4 +41,12 @@ public class Constants {
 
     public static final int WIDTH = 800;
     public static final int HEIGHT = 480;
+
+    // TODO These should be part of GameState so that the server can regulate
+    //  game speed if one client is running too slow. Also could be used to
+    //  slow down and speed up the game during play. Also also could be used to
+    //  make sure the bluetooth isn't being overloaded.
+    // Number of simulation steps processed per GameState from server.
+    public static final int STEP_MULTIPLIER = 10;
+    public static final int STEP_TIME_MS = 10;
 }

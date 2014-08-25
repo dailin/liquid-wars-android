@@ -42,8 +42,6 @@ public class Server extends Thread {
             if(gGameState.state() == GameState.MAIN_MENU) {
                 removeClosedConnections();
             }
-
-            Util.sleep(100); // XXX Dodgy speed regulation. 10 times per second.
         }
     }
 
@@ -61,13 +59,15 @@ public class Server extends Thread {
 
         if(state == GameState.IN_PLAY) {
             gGameState.preStep(gDotSimulation);
-            for(int i = 0; i < 10; i++) {
+            for(int i = 0; i < Constants.STEP_MULTIPLIER; i++) {
                 gGameState.step(gDotSimulation, true);
                 // XXX This needs some sort of time management.
-                Util.sleep(20);
+                Util.sleep(Constants.STEP_TIME_MS);
             }
         } else if(state == GameState.COUNTDOWN) {
             gGameState.state(GameState.IN_PLAY);
+
+            Util.sleep(Constants.STEP_TIME_MS * Constants.STEP_MULTIPLIER);
         } else if(state == GameState.MAIN_MENU) {
             if(gDotSimulation != null) {
                 gDotSimulation.delete();
@@ -93,6 +93,8 @@ public class Server extends Thread {
                 final int teamSize = gGameState.getTeamSize();
                 gDotSimulation = new DotSimulation(0, playerCount, colors, teamSize);
             }
+
+            Util.sleep(Constants.STEP_TIME_MS * Constants.STEP_MULTIPLIER);
         }
     }
 
