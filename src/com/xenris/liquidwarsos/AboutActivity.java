@@ -1,6 +1,6 @@
 //    This file is part of Liquid Wars.
 //
-//    Copyright (C) 2013 Henry Shepperd (hshepperd@gmail.com)
+//    Copyright (C) 2013-2014 Henry Shepperd (hshepperd@gmail.com)
 //
 //    Liquid Wars is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
