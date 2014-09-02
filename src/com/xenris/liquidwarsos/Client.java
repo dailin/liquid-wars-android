@@ -27,7 +27,7 @@ import android.widget.*;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import com.xenris.liquidwarsos.Bluetooth.CreateConnectionCallbacks;
-import com.xenris.liquidwarsos.ColourPickerDialog.ColourPickerListener;
+import com.xenris.liquidwarsos.ColorPickerDialog.ColorPickerListener;
 import java.util.*;
 
 public class Client extends BaseActivity
@@ -85,7 +85,7 @@ public class Client extends BaseActivity
         gServerConnection = gServer.createConnection();
         gServerConnection.start();
         gServer.start();
-        gMe = new ClientInfo(gServerConnection.getConnectionId(), ColorUtil.randomColour(), true);
+        gMe = new ClientInfo(gServerConnection.getConnectionId(), ColorUtil.randomColor(), true);
         gServerConnection.setClientInfoToSend(gMe);
         gRenderer.setClientInfoToDraw(gMe);
 
@@ -159,8 +159,8 @@ public class Client extends BaseActivity
         } else if(id == R.id.ready_button) {
             final boolean ready = ((ToggleButton)view).isChecked();
             gMe.setReady(ready);
-        } else if(id == R.id.player_colour_view) {
-            changeColour();
+        } else if(id == R.id.player_color_view) {
+            changeColor();
         }
     }
 
@@ -272,16 +272,16 @@ public class Client extends BaseActivity
         dialog.show();
     }
 
-    public void changeColour() {
-        ColourPickerListener listener = new ColourPickerListener() {
+    public void changeColor() {
+        ColorPickerListener listener = new ColorPickerListener() {
                 @Override
-                public void onSelect(ColourPickerDialog dialog, int colour) {
-                    gMe.setColor(colour);
+                public void onSelect(ColorPickerDialog dialog, int color) {
+                    gMe.setColor(color);
                 }
 
                 @Override
-                public void onChange(ColourPickerDialog dialog, int colour) {
-                    gMe.setColor(colour);
+                public void onChange(ColorPickerDialog dialog, int color) {
+                    gMe.setColor(color);
                 }
             };
         Rect displayRectangle = new Rect();
@@ -289,10 +289,10 @@ public class Client extends BaseActivity
         final int w = displayRectangle.width();
         final int h = displayRectangle.height();
         final int smallSide = (w < h) ? w : h;
-        final int currentColour = gMe.getColor();
+        final int currentColor = gMe.getColor();
         final int dialogSize = (int)(smallSide * 0.8);
-        ColourPickerDialog colourPickerDialog = new ColourPickerDialog(this, currentColour, dialogSize, listener);
-        colourPickerDialog.show();
+        ColorPickerDialog colorPickerDialog = new ColorPickerDialog(this, currentColor, dialogSize, listener);
+        colorPickerDialog.show();
     }
 
     @Override
@@ -350,7 +350,7 @@ public class Client extends BaseActivity
     }
 
     private void setPlayerColorView(int color) {
-        final View view = findViewById(R.id.player_colour_view);
+        final View view = findViewById(R.id.player_color_view);
         view.setBackgroundColor(color);
     }
 }

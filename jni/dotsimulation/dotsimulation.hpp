@@ -36,7 +36,7 @@ class DotSimulation {
         Dot*** gField;
         Map* gMap;
         vector<float> gPoints;
-        vector<float> gColours;
+        vector<float> gColors;
         Random* gRandom;
         int gNumberOfPlayers;
         int gTeamSize;

@@ -34,14 +34,14 @@ public class ClientInfo {
         gColor = Color.BLUE;
     }
 
-    public ClientInfo(int id, int colour) {
+    public ClientInfo(int id, int color) {
         gId = id;
-        gColor = colour;
+        gColor = color;
     }
 
-    public ClientInfo(int id, int colour, boolean isClients) {
+    public ClientInfo(int id, int color, boolean isClients) {
         gId = id;
-        gColor = colour;
+        gColor = color;
         gIsClients = isClients;
     }
 

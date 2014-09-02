@@ -39,8 +39,8 @@ public class PlayerListView extends View {
         paint.setFlags(Paint.ANTI_ALIAS_FLAG);
     }
 
-    public void setPlayer(int id, int colour, boolean ready) {
-        Player player = new Player(colour, ready);
+    public void setPlayer(int id, int color, boolean ready) {
+        Player player = new Player(color, ready);
         players.put(id, player);
         invalidate();
     }
@@ -71,7 +71,7 @@ public class PlayerListView extends View {
             paint.setColor(Color.BLACK);
             canvas.drawCircle(x, y, radius, paint);
 
-            paint.setColor(player.colour);
+            paint.setColor(player.color);
             canvas.drawCircle(x, y, radius - diff, paint);
 
             x += height;
@@ -85,11 +85,11 @@ public class PlayerListView extends View {
     }
 
     private class Player {
-        public int colour;
+        public int color;
         public boolean ready;
 
-        public Player(int colour, boolean ready) {
-            this.colour = colour;
+        public Player(int color, boolean ready) {
+            this.color = color;
             this.ready = ready;
         }
     }

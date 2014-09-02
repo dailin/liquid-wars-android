@@ -24,27 +24,27 @@ public class ColorUtil {
     private static final Random gRandom = new Random();
     private static final float gSaturation = 0.7f;
     private static final float gValue = 0.85f;
-    private static final int[] gColourWheel;
+    private static final int[] gColorWheel;
 
     static {
-        gColourWheel = new int[7];
+        gColorWheel = new int[7];
 
         for(int i = 0; i < 7; i++) {
             final float hue = 360.0f - ((float)i / 6.0f) * 360.0f;
-            gColourWheel[i] = hueToColour(hue);
+            gColorWheel[i] = hueToColor(hue);
         }
     }
 
-    public static int randomColour() {
+    public static int randomColor() {
         final int hue = gRandom.nextInt(360);
-        return hueToColour(hue);
+        return hueToColor(hue);
     }
 
-    public static int[] colourWheel() {
-        return gColourWheel;
+    public static int[] colorWheel() {
+        return gColorWheel;
     }
 
-    public static int hueToColour(float hue) {
+    public static int hueToColor(float hue) {
         final float[] hsv = {hue, gSaturation, gValue};
         return Color.HSVToColor(hsv);
     }

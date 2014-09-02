@@ -22,33 +22,33 @@ import android.content.*;
 import android.os.Bundle;
 import android.view.Window;
 
-public class ColourPickerDialog extends Dialog implements ColourPickerView.Callbacks {
-    private ColourPickerListener gListener;
-    private int gInitialColour;
+public class ColorPickerDialog extends Dialog implements ColorPickerView.Callbacks {
+    private ColorPickerListener gListener;
+    private int gInitialColor;
 
-    public ColourPickerDialog(Context context, int initialColour, int dialogSize, ColourPickerListener listener) {
+    public ColorPickerDialog(Context context, int initialColor, int dialogSize, ColorPickerListener listener) {
         super(context);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         gListener = listener;
-        gInitialColour = initialColour;
-        setContentView(new ColourPickerView(this, context, initialColour));
+        gInitialColor = initialColor;
+        setContentView(new ColorPickerView(this, context, initialColor));
         getWindow().setLayout(dialogSize, dialogSize);
         setCanceledOnTouchOutside(true);
     }
 
     @Override
-    public void onSelect(int colour) {
+    public void onSelect(int color) {
         dismiss();
-        gListener.onSelect(this, colour);
+        gListener.onSelect(this, color);
     }
 
     @Override
-    public void onChange(int colour) {
-        gListener.onChange(this, colour);
+    public void onChange(int color) {
+        gListener.onChange(this, color);
     }
 
-    public interface ColourPickerListener {
-        public void onSelect(ColourPickerDialog dialog, int colour);
-        public void onChange(ColourPickerDialog dialog, int colour);
+    public interface ColorPickerListener {
+        public void onSelect(ColorPickerDialog dialog, int color);
+        public void onChange(ColorPickerDialog dialog, int color);
     }
 }

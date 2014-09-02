@@ -44,10 +44,10 @@ DotSimulation::DotSimulation(unsigned int seed, int numberOfPlayers, int* colors
 
     gDots.resize(gNumberOfPlayers * gTeamSize);
     gPoints.resize(gNumberOfPlayers * gTeamSize * 3);
-    gColours.resize(gNumberOfPlayers * gTeamSize * 4);
+    gColors.resize(gNumberOfPlayers * gTeamSize * 4);
 
     for(int i = 0; i < gNumberOfPlayers * gTeamSize * 4; i++) {
-        gColours[i] = 1;
+        gColors[i] = 1;
     }
 
     gRandom = new Random(seed);
@@ -68,9 +68,9 @@ DotSimulation::~DotSimulation() {
 void DotSimulation::placeTeams() {
     float* xp = &gPoints[0];
     float* yp = &gPoints[1];
-    float* rp = &gColours[0];
-    float* gp = &gColours[1];
-    float* bp = &gColours[2];
+    float* rp = &gColors[0];
+    float* gp = &gColors[1];
+    float* bp = &gColors[2];
 
     for(int t = 0; t < gNumberOfPlayers; t++) {
         int sx = Info::playerStartPositionX(t, gWidth);
@@ -115,7 +115,7 @@ void DotSimulation::draw() {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
 
-    glColorPointer(4, GL_FLOAT, 0, &gColours[0]);
+    glColorPointer(4, GL_FLOAT, 0, &gColors[0]);
     glVertexPointer(3, GL_FLOAT, 0, &gPoints[0]);
 
     glDrawArrays(GL_POINTS, 0, gNumberOfPlayers * gTeamSize);

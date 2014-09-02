@@ -26,29 +26,29 @@ import android.view.View;
 import android.view.MotionEvent;
 import android.graphics.SweepGradient;
 
-public class ColourPickerView extends View {
+public class ColorPickerView extends View {
     private Callbacks gCallbacks;
-    private int gInitialColour;
+    private int gInitialColor;
     private int gWidth;
     private int gHeight;
     private Paint gCirclePaint;
     private Paint gCenterPaint;
-    private boolean gPickingColour = false;
+    private boolean gPickingColor = false;
 
-    public ColourPickerView(Callbacks callbacks, Context context, int initialColour) {
+    public ColorPickerView(Callbacks callbacks, Context context, int initialColor) {
         super(context);
         gCallbacks = callbacks;
-        gInitialColour = initialColour;
+        gInitialColor = initialColor;
 
         gCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         gCenterPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        SweepGradient sweepGradient = new SweepGradient(0, 0, ColorUtil.colourWheel(), null);
+        SweepGradient sweepGradient = new SweepGradient(0, 0, ColorUtil.colorWheel(), null);
 
         gCirclePaint.setShader(sweepGradient);
         gCirclePaint.setStyle(Paint.Style.STROKE);
 
-        gCenterPaint.setColor(initialColour);
+        gCenterPaint.setColor(initialColor);
     }
 
     @Override
@@ -80,35 +80,35 @@ public class ColourPickerView extends View {
 
         if(action == MotionEvent.ACTION_DOWN) {
             if(touchDistance >= centerRadius) {
-                gPickingColour = true;
-                updateColour(x, y);
+                gPickingColor = true;
+                updateColor(x, y);
             } else {
-                gPickingColour = false;
+                gPickingColor = false;
             }
         } else if(action == MotionEvent.ACTION_UP) {
-            if((touchDistance < centerRadius) && !gPickingColour) {
+            if((touchDistance < centerRadius) && !gPickingColor) {
                 gCallbacks.onSelect(gCenterPaint.getColor());
             }
         } else if(action == MotionEvent.ACTION_MOVE) {
-            if((touchDistance > centerRadius) && gPickingColour) {
-                updateColour(x, y);
+            if((touchDistance > centerRadius) && gPickingColor) {
+                updateColor(x, y);
             }
         }
 
         return true;
     }
 
-    private void updateColour(int x, int y) {
-        final int colour = calculateColour(x, y);
-        gCenterPaint.setColor(colour);
-        gCallbacks.onChange(colour);
+    private void updateColor(int x, int y) {
+        final int color = calculateColor(x, y);
+        gCenterPaint.setColor(color);
+        gCallbacks.onChange(color);
         invalidate();
     }
 
-    private int calculateColour(int x, int y) {
+    private int calculateColor(int x, int y) {
         final float r = (float)Math.atan2(y, -x);
         final float hue = (((r / (float)Math.PI) + 1.0f) / 2.0f) * 360.0f;
-        return ColorUtil.hueToColour(hue);
+        return ColorUtil.hueToColor(hue);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ColourPickerView extends View {
     }
 
     public interface Callbacks {
-        public void onSelect(int colour);
-        public void onChange(int colour);
+        public void onSelect(int color);
+        public void onChange(int color);
     }
 }
