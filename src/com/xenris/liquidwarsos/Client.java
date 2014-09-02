@@ -85,7 +85,7 @@ public class Client extends BaseActivity
         gServerConnection = gServer.createConnection();
         gServerConnection.start();
         gServer.start();
-        gMe = new ClientInfo(gServerConnection.getConnectionId(), Color.BLUE, true);
+        gMe = new ClientInfo(gServerConnection.getConnectionId(), ColorUtil.randomColour(), true);
         gServerConnection.setClientInfoToSend(gMe);
         gRenderer.setClientInfoToDraw(gMe);
 
