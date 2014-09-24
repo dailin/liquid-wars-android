@@ -29,6 +29,7 @@ public class GameState {
     private ArrayList<ClientInfo> gClientInfos;
     private int gState = MAIN_MENU;
     private long gStepNumber = 0;
+    private int gMapId = 0;
 
     public GameState() {
         gClientInfos = new ArrayList<ClientInfo>();
@@ -45,6 +46,7 @@ public class GameState {
 
         gState = dataInputStream.readInt();
         gStepNumber = dataInputStream.readLong();
+        gMapId = dataInputStream.readInt();
     }
 
     public void write(DataOutputStream dataOutputStream) throws IOException {
@@ -56,6 +58,7 @@ public class GameState {
 
         dataOutputStream.writeInt(gState);
         dataOutputStream.writeLong(gStepNumber);
+        dataOutputStream.writeInt(gMapId);
     }
 
     public void addClientInfo(int id) {
@@ -147,5 +150,13 @@ public class GameState {
 
     public int getTeamSize() {
         return 400;
+    }
+
+    public int getMapId() {
+        return gMapId;
+    }
+
+    public void setMapId(int mapId) {
+        gMapId = mapId;
     }
 }

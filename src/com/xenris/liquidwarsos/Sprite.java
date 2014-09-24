@@ -49,6 +49,18 @@ public class Sprite {
     private float gScaleY = 1;
 
     public Sprite(GL10 gl, Context context, int resourceId) {
+        final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
+
+        init(gl, bitmap);
+
+        bitmap.recycle();
+    }
+
+    public Sprite(GL10 gl, Bitmap bitmap) {
+        init(gl, bitmap);
+    }
+
+    private void init(GL10 gl, Bitmap bitmap) {
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(vertices.length * 4);
         byteBuffer.order(ByteOrder.nativeOrder());
         vertexBuffer = byteBuffer.asFloatBuffer();
@@ -61,17 +73,14 @@ public class Sprite {
         textureBuffer.put(texture);
         textureBuffer.position(0);
 
-        final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
-
         gl.glGenTextures(1, textures, 0);
         gl.glBindTexture(GL10.GL_TEXTURE_2D, textures[0]);
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
         GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, bitmap, 0);
-
-        bitmap.recycle();
     }
 
+    // TODO Remove the need for w and h.
     public void draw(GL10 gl, float x, float y, float w, float h) {
         gl.glPushMatrix();
 

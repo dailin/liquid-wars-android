@@ -17,19 +17,23 @@
 
 #include "map.hpp"
 
-Map::Map(int width, int height) {
+Map::Map(int width, int height, bool* wallMap) {
     gWidth = width;
     gHeight = height;
-    gMap = NULL;
+    const int n = width * height;
+
+    gMap = new bool[n];
+
+    for(int i = 0; i < n; i++) {
+        gMap[i] = wallMap[i];
+    }
 }
 
 Map::~Map() {
-//    delete gMap;
+    delete gMap;
 }
 
 bool Map::isWall(int x, int y) {
-//    y = (HEIGHT-1) - y; // Invert y axis.
-
     if((x < 0) || (x >= gWidth)) {
         return true;
     }
@@ -38,6 +42,5 @@ bool Map::isWall(int x, int y) {
         return true;
     }
 
-    return false;
-//    return gMap[x][y];
+    return gMap[y * gWidth + x];
 }

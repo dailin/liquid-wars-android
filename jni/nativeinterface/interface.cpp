@@ -18,13 +18,15 @@
 #include "interface.hpp"
 
 JNIEXPORT jlong JNICALL Java_com_xenris_liquidwarsos_DotSimulation_newNative(
-    JNIEnv* env, jobject jobj, jlong seed, jint numberOfPlayers, jintArray colors, jint teamSize, jint width, jint height) {
+    JNIEnv* env, jobject jobj, jlong seed, jint numberOfPlayers, jintArray colors, jint teamSize, jint width, jint height, jbooleanArray wallMap) {
 
     int* nColors = env->GetIntArrayElements(colors, NULL);
+    bool* nWallMap = (bool*)env->GetBooleanArrayElements(wallMap, NULL);
 
-    DotSimulation* dotSimulation = new DotSimulation(seed, numberOfPlayers, nColors, teamSize, width, height);
+    DotSimulation* dotSimulation = new DotSimulation(seed, numberOfPlayers, nColors, teamSize, width, height, nWallMap);
 
     env->ReleaseIntArrayElements(colors, nColors, 0);
+    env->ReleaseBooleanArrayElements(wallMap, (jboolean*)nWallMap, 0);
 
     return (jlong)dotSimulation;
 }

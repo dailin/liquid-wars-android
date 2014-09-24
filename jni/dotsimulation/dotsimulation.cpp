@@ -19,7 +19,7 @@
 
 // TODO Should really do some checks to make sure "new" doesn't return null.
 
-DotSimulation::DotSimulation(unsigned int seed, int numberOfPlayers, int* colors, int teamSize, int width, int height) {
+DotSimulation::DotSimulation(unsigned int seed, int numberOfPlayers, int* colors, int teamSize, int width, int height, bool* wallMap) {
     gNumberOfPlayers = numberOfPlayers;
     gTeamSize = teamSize;
     gWidth = width;
@@ -31,7 +31,7 @@ DotSimulation::DotSimulation(unsigned int seed, int numberOfPlayers, int* colors
         gPlayers[i].color = colors[i];
     }
 
-    gMap = new Map(gWidth, gHeight);
+    gMap = new Map(gWidth, gHeight, wallMap);
 
     gField = new Dot**[width];
 

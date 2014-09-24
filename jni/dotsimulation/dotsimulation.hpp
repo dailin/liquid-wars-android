@@ -44,7 +44,7 @@ class DotSimulation {
         int gHeight;
 
     public:
-        DotSimulation(unsigned int seed, int numberOfPlayers, int* colors, int teamSize, int width, int height);
+        DotSimulation(unsigned int seed, int numberOfPlayers, int* colors, int teamSize, int width, int height, bool* wallMap);
         ~DotSimulation();
         void placeTeams();
         void draw();

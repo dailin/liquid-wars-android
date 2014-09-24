@@ -24,7 +24,7 @@
 extern "C" {
 
 JNIEXPORT jlong JNICALL Java_com_xenris_liquidwarsos_DotSimulation_newNative(
-    JNIEnv* env, jobject jobj, jlong seed, jint numberOfPlayers, jintArray colors, jint teamSize, jint width, jint height);
+    JNIEnv* env, jobject jobj, jlong seed, jint numberOfPlayers, jintArray colors, jint teamSize, jint width, jint height, jbooleanArray wallMap);
 
 JNIEXPORT void JNICALL Java_com_xenris_liquidwarsos_DotSimulation_deleteNative(
     JNIEnv* env, jobject jobj, jlong pointer);

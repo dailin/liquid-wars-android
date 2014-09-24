@@ -23,8 +23,9 @@ public class DotSimulation {
     private long gNativePointer;
     private boolean gIsValid = false;
     private long gStepNumber = 0;
+    private Map gMap;
 
-    private static native long newNative(long seed, int numberOfPlayers, int[] colors, int teamSize, int width, int height);
+    private static native long newNative(long seed, int numberOfPlayers, int[] colors, int teamSize, int width, int height, boolean[] wallMap);
     private static native void deleteNative(long pointer);
     private static native void drawNative(long pointer);
     private static native void stepNative(long pointer);
@@ -34,8 +35,12 @@ public class DotSimulation {
         System.loadLibrary("nativeinterface");
     }
 
-    public DotSimulation(long seed, int numberOfPlayers, int[] colors, int teamSize) {
-        gNativePointer = newNative(seed, numberOfPlayers, colors, teamSize, Constants.WIDTH, Constants.HEIGHT);
+    public DotSimulation(long seed, int numberOfPlayers, int[] colors, int teamSize, Map map) {
+        gMap = map;
+
+        // TODO Use map.width() and map.height() instead of constants.
+        boolean[] wallMap = gMap.createWallMap();
+        gNativePointer = newNative(seed, numberOfPlayers, colors, teamSize, Constants.WIDTH, Constants.HEIGHT, wallMap);
 
         if(gNativePointer != 0) {
             gIsValid = true;
@@ -85,6 +90,10 @@ public class DotSimulation {
                 setPlayerPositionNative(gNativePointer, playerId, x, y);
             }
         }
+    }
+
+    public Map getMap() {
+        return gMap;
     }
 
 //    public static native void onSurfaceCreated();

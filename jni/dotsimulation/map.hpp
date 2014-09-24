@@ -27,7 +27,7 @@ class Map {
         int gHeight;
 
     public:
-        Map(int width, int height);
+        Map(int width, int height, bool* wallMap);
         ~Map();
         bool isWall(int width, int height);
 };

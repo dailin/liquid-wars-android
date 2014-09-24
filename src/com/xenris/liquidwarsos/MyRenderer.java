@@ -27,10 +27,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private GameState gGameState;
     private ClientInfo gClientInfo;
     private DotSimulation gDotSimulation;
+    private Sprite gMapSprite;
+    private Map gMap;
     private float gWidth;
     private float gHeight;
     private Sprite touchSprite;
     private Context gContext;
+    private GL10 gGl;
 
     public MyRenderer(Context context) {
         gContext = context;
@@ -38,6 +41,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        gGl = gl;
+
         gl.glEnable(GL10.GL_DEPTH_TEST);
         gl.glShadeModel(GL10.GL_SMOOTH);
         gl.glEnable(GL10.GL_BLEND);
@@ -52,14 +57,24 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         synchronized(this) {
-            gl.glClearColor(0, 0, 1, 1);
+            gl.glClearColor(0, 0, 0, 1);
             gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
             gl.glLoadIdentity();
 
+            if(gMapSprite != null) {
+                gMapSprite.draw(gl, 0.5f, 0.5f, gWidth, gHeight);
+            } else {
+                if(gMap != null) {
+                    gMapSprite = gMap.createSprite(gGl);
+                    gMapSprite.scale(Constants.WIDTH, -Constants.HEIGHT);
+                }
+            }
+
             if(gDotSimulation != null) {
                 gDotSimulation.draw();
             }
+
 
             if(gClientInfo != null) {
                 touchSprite.draw(gl, gClientInfo.getX(), gClientInfo.getY(), gWidth, gHeight); // TODO Draw at each finger touch point.
@@ -106,6 +121,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void setDotSimulationToDraw(DotSimulation dotSimulation) {
         synchronized(this) {
             gDotSimulation = dotSimulation;
+        }
+    }
+
+    public void setMapToDraw(Map map) {
+        synchronized(this) {
+            gMap = map;
         }
     }
 }

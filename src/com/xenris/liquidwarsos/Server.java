@@ -17,6 +17,7 @@
 
 package com.xenris.liquidwarsos;
 
+import android.content.Context;
 import java.io.*;
 import java.util.*;
 
@@ -27,6 +28,11 @@ public class Server extends Thread {
     private ArrayList<ClientConnection> gClientConnections = new ArrayList<ClientConnection>();
     private GameState gGameState = new GameState();
     private DotSimulation gDotSimulation;
+    private final Context gContext;
+
+    public Server(Context context) {
+        gContext = context;
+    }
 
     @Override
     public void run() {
@@ -91,7 +97,9 @@ public class Server extends Thread {
                 final int playerCount = gGameState.getPlayerCount();
                 final int[] colors = gGameState.getTeamColors();
                 final int teamSize = gGameState.getTeamSize();
-                gDotSimulation = new DotSimulation(0, playerCount, colors, teamSize);
+                final Map map = new Map(gContext, gGameState.getMapId());
+
+                gDotSimulation = new DotSimulation(0, playerCount, colors, teamSize, map);
             }
 
             Util.sleep(Constants.STEP_TIME_MS * Constants.STEP_MULTIPLIER);

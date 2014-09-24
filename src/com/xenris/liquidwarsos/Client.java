@@ -81,7 +81,7 @@ public class Client extends BaseActivity
 
         setupHandlers();
 
-        gServer = new Server();
+        gServer = new Server(this);
         gServerConnection = gServer.createConnection();
         gServerConnection.start();
         gServer.start();
@@ -196,10 +196,13 @@ public class Client extends BaseActivity
                         final int playerCount = gameState.getPlayerCount();
                         final int[] colors = gameState.getTeamColors();
                         final int teamSize = gameState.getTeamSize();
+                        final Map map = new Map(this, gameState.getMapId());
 
-                        gDotSimulation = new DotSimulation(0, playerCount, colors, teamSize);
+                        gDotSimulation = new DotSimulation(0, playerCount, colors, teamSize, map);
+
                     }
 
+                    gRenderer.setMapToDraw(gDotSimulation.getMap());
                     gRenderer.setDotSimulationToDraw(gDotSimulation);
                 }
             } else if(state == GameState.IN_PLAY) {
