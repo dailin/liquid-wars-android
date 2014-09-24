@@ -45,9 +45,11 @@ public class Server extends Thread {
 
             sendGameState();
 
-            if(gGameState.state() == GameState.MAIN_MENU) {
+//            if(gGameState.state() == GameState.MAIN_MENU) {
+                // FIXME Need to be able to remove closed connections at all times
+                //  but only remove players when the game isn't in play.
                 removeClosedConnections();
-            }
+//            }
         }
     }
 
