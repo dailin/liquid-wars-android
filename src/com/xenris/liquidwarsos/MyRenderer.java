@@ -51,7 +51,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
 
         touchSprite = new Sprite(gl, gContext, R.drawable.touch);
-        touchSprite.scale(10, 10);
+        touchSprite.scale(0.05f, 0.05f);
     }
 
     @Override
@@ -63,11 +63,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             gl.glLoadIdentity();
 
             if(gMapSprite != null) {
-                gMapSprite.draw(gl, 0.5f, 0.5f, gWidth, gHeight);
+                gMapSprite.draw(gl, 0.5f, 0.5f);
             } else {
                 if(gMap != null) {
                     gMapSprite = gMap.createSprite(gGl);
-                    gMapSprite.scale(Constants.WIDTH, -Constants.HEIGHT);
                 }
             }
 
@@ -77,7 +76,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
             if(gClientInfo != null) {
-                touchSprite.draw(gl, gClientInfo.getX(), gClientInfo.getY(), gWidth, gHeight); // TODO Draw at each finger touch point.
+                touchSprite.draw(gl, gClientInfo.getX(), gClientInfo.getY()); // TODO Draw at each finger touch point.
             }
         }
     }
@@ -104,6 +103,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         final float gPointSize = m + 1.5f;
 
         gl.glPointSize(gPointSize); // XXX Should this be in native?
+
+        touchSprite.setRatio((float)height / (float)width);
     }
 
     public void setGameStateToDraw(GameState gameState) {

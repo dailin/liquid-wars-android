@@ -29,10 +29,10 @@ import javax.microedition.khronos.opengles.GL10;
 public class Sprite {
     private FloatBuffer vertexBuffer;
     private float vertices[] = {
-        -1.0f, -1.0f,  0.0f,
-        -1.0f,  1.0f,  0.0f,
-         1.0f, -1.0f,  0.0f,
-         1.0f,  1.0f,  0.0f
+        0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 0.0f
     };
 
     private FloatBuffer textureBuffer;
@@ -47,6 +47,7 @@ public class Sprite {
 
     private float gScaleX = 1;
     private float gScaleY = 1;
+    private float gRatio = 1;
 
     public Sprite(GL10 gl, Context context, int resourceId) {
         final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
@@ -81,7 +82,7 @@ public class Sprite {
     }
 
     // TODO Remove the need for w and h.
-    public void draw(GL10 gl, float x, float y, float w, float h) {
+    public void draw(GL10 gl, float x, float y) {
         gl.glPushMatrix();
 
         gl.glEnable(GL10.GL_TEXTURE_2D);
@@ -91,10 +92,8 @@ public class Sprite {
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 
-        gl.glScalef(1f/w, 1f/h, 1);
-
-        gl.glTranslatef(x * w, y * h, 0);
-        gl.glScalef(gScaleX, gScaleY, 1);
+        gl.glScalef((gScaleX * gRatio), -gScaleY, 1);
+        gl.glTranslatef(x / (gScaleX * gRatio) - 0.5f, y / -gScaleY - 0.5f, 0);
 
         gl.glFrontFace(GL10.GL_CW);
 
@@ -114,5 +113,9 @@ public class Sprite {
     public void scale(float x, float y) {
         gScaleX = x;
         gScaleY = y;
+    }
+
+    public void setRatio(float ratio) {
+        gRatio = ratio;
     }
 }
