@@ -40,7 +40,7 @@ public class DotSimulation {
 
         // TODO Use map.width() and map.height() instead of constants.
         boolean[] wallMap = gMap.createWallMap();
-        gNativePointer = newNative(seed, numberOfPlayers, colors, teamSize, Constants.WIDTH, Constants.HEIGHT, wallMap);
+        gNativePointer = newNative(seed, numberOfPlayers, colors, teamSize, gMap.getWidth(), gMap.getHeight(), wallMap);
 
         if(gNativePointer != 0) {
             gIsValid = true;

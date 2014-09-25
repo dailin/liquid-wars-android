@@ -67,6 +67,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             } else {
                 if(gMap != null) {
                     gMapSprite = gMap.createSprite(gGl);
+                    final float rw = (float)gWidth / (float)gMap.getWidth();
+                    final float rh = (float)gHeight / (float)gMap.getHeight();
+                    final float m = Math.max(rw, rh);
+                    final float gPointSize = m + 1.5f;
+                    gl.glPointSize(gPointSize); // XXX Should this be in native?
                 }
             }
 
@@ -94,15 +99,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         gl.glMatrixMode(GL10.GL_MODELVIEW);
         gl.glLoadIdentity();
-
-        final float rw = (float)width / (float)Constants.WIDTH;
-        final float rh = (float)height / (float)Constants.HEIGHT;
-
-        final float m = Math.max(rw, rh);
-
-        final float gPointSize = m + 1.5f;
-
-        gl.glPointSize(gPointSize); // XXX Should this be in native?
 
         touchSprite.setRatio((float)height / (float)width);
     }

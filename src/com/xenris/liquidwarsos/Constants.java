@@ -39,9 +39,6 @@ public class Constants {
 
     public static final UUID uuid = new UUID(182741987, 289479128);
 
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 480;
-
     // TODO These should be part of GameState so that the server can regulate
     //  game speed if one client is running too slow. Also could be used to
     //  slow down and speed up the game during play. Also also could be used to

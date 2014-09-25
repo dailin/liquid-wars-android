@@ -27,6 +27,8 @@ public class Map {
     private final int gId;
     private final Context gContext;
     private Bitmap gBitmap;
+    private final int gWidth;
+    private final int gHeight;
 
     public Map(Context context, int id) {
         gId = id;
@@ -41,17 +43,16 @@ public class Map {
         }
 
         gBitmap = BitmapFactory.decodeStream(inputStream);
+        gWidth = gBitmap.getWidth();
+        gHeight = gBitmap.getHeight();
     }
 
     public boolean[] createWallMap() {
-        final int width = gBitmap.getWidth();
-        final int height = gBitmap.getHeight();
-
-        boolean[] result = new boolean[width * height];
+        boolean[] result = new boolean[gWidth * gHeight];
 
         int i = 0;
-        for(int y = 0; y < height; y++) {
-            for(int x = 0; x < width; x++) {
+        for(int y = 0; y < gHeight; y++) {
+            for(int x = 0; x < gWidth; x++) {
                 result[i] = isWhite(gBitmap.getPixel(x, y));
                 i++;
             }
@@ -76,5 +77,13 @@ public class Map {
 
     public static String toAssetPath(int id) {
         return "maps/" + id + "-map.png";
+    }
+
+    public int getWidth() {
+        return gWidth;
+    }
+
+    public int getHeight() {
+        return gHeight;
     }
 }
