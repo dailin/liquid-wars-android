@@ -28,6 +28,7 @@ public class Bluetooth {
     private AcceptThread gAcceptThread;
     private Activity gActivity;
     private Callbacks gCallbacks;
+    private SharingCallbacks gSharingCallbacks;
 
     public Bluetooth(Activity activity) {
         gActivity = activity;
@@ -142,7 +143,9 @@ public class Bluetooth {
         }
     }
 
-    public void startSharing(Server server) {
+    public void startSharing(Server server, SharingCallbacks sharingCallbacks) {
+        gSharingCallbacks = sharingCallbacks;
+
         if(gBluetoothAdapter != null) {
             if(gAcceptThread == null) {
                 gAcceptThread = new AcceptThread(server);
@@ -151,6 +154,8 @@ public class Bluetooth {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, Constants.DISCOVERABLE_TIME);
             gActivity.startActivityForResult(intent, Constants.START_SHARING);
+        } else {
+            gSharingCallbacks.sharingFailed();
         }
     }
 
@@ -159,6 +164,20 @@ public class Bluetooth {
             gAcceptThread.close();
             gAcceptThread = null;
         }
+    }
+
+    public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == Constants.START_SHARING) {
+            if(resultCode == Activity.RESULT_CANCELED) {
+                gSharingCallbacks.sharingFailed();
+            } else {
+                gSharingCallbacks.sharingSucceeded();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private class AcceptThread extends Thread {
@@ -193,5 +212,10 @@ public class Bluetooth {
     public interface CreateConnectionCallbacks {
         public void onConnectionMade(BluetoothServerConnection bluetoothServerConnection, String serverName);
         public void onConnectionFailed();
+    }
+
+    public interface SharingCallbacks {
+        public void sharingSucceeded();
+        public void sharingFailed();
     }
 }

@@ -19,6 +19,7 @@ package com.xenris.liquidwarsos;
 
 import android.app.*;
 import android.bluetooth.*;
+import android.content.*;
 import android.graphics.*;
 import android.opengl.GLSurfaceView;
 import android.os.*;
@@ -121,6 +122,10 @@ public class Client extends BaseActivity
                 case Constants.CONNECTION_MADE:
                     Toast.makeText(Client.this, "Connection made!", Toast.LENGTH_SHORT).show();
                     setPublicNameTextView((String)message.obj);
+                    final Button shareButton = (Button)findViewById(R.id.share_button);
+                    shareButton.setEnabled(false);
+                    final Button findButton = (Button)findViewById(R.id.find_button);
+                    findButton.setEnabled(false);
                     break;
                 case Constants.CONNECTION_FAILED:
                     Toast.makeText(Client.this, "Connection failed", Toast.LENGTH_SHORT).show();
@@ -247,7 +252,19 @@ public class Client extends BaseActivity
 
     private void share() {
         if(gBluetooth.isBluetoothEnabled()) {
-            gBluetooth.startSharing(gServer);
+            final Bluetooth.SharingCallbacks callbacks = new Bluetooth.SharingCallbacks() {
+                @Override
+                public void sharingSucceeded() {
+                    final Button findButton = (Button)findViewById(R.id.find_button);
+                    findButton.setEnabled(false);
+                }
+
+                @Override
+                public void sharingFailed() {
+                }
+            };
+
+            gBluetooth.startSharing(gServer, callbacks);
         } else {
             Toast.makeText(this, "Enable bluetooth first", Toast.LENGTH_SHORT).show();
         }
@@ -268,6 +285,15 @@ public class Client extends BaseActivity
 
         final ServerFinderDialog dialog = new ServerFinderDialog(this, callbacks, gBluetooth);
         dialog.show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(gBluetooth.handleActivityResult(requestCode, resultCode, data)) {
+            return;
+        } else {
+            // Handle other results.
+        }
     }
 
     public void changeColor() {
