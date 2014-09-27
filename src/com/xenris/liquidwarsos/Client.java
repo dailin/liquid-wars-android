@@ -212,12 +212,7 @@ public class Client extends BaseActivity
                 }
 
                 if(gServer == null) {
-                    gameState.preStep(gDotSimulation);
-                    for(int i = 0; i < Constants.STEP_MULTIPLIER; i++) {
-                        gameState.step(gDotSimulation, false);
-                        // XXX This needs some sort of time management.
-                        Util.sleep(Constants.STEP_TIME_MS);
-                    }
+                    gameState.step(gDotSimulation, false);
                 }
             }
 

@@ -66,12 +66,7 @@ public class Server extends Thread {
         final int state = gGameState.state();
 
         if(state == GameState.IN_PLAY) {
-            gGameState.preStep(gDotSimulation);
-            for(int i = 0; i < Constants.STEP_MULTIPLIER; i++) {
-                gGameState.step(gDotSimulation, true);
-                // XXX This needs some sort of time management.
-                Util.sleep(Constants.STEP_TIME_MS);
-            }
+            gGameState.step(gDotSimulation, true);
         } else if(state == GameState.COUNTDOWN) {
             gGameState.state(GameState.IN_PLAY);
 

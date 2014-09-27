@@ -98,25 +98,30 @@ public class GameState {
         }
     }
 
-    public void preStep(DotSimulation dotSimulation) {
+    public void step(DotSimulation dotSimulation, boolean isServer) {
+        loadPlayerPositions(dotSimulation);
+        for(int i = 0; i < Constants.STEP_MULTIPLIER; i++) {
+            if(isServer) {
+                gStepNumber++;
+            }
+
+            if(dotSimulation != null) {
+                if(dotSimulation.getStepNumber() < gStepNumber) {
+                    dotSimulation.step();
+                }
+            }
+            // XXX This needs some sort of time management.
+            Util.sleep(Constants.STEP_TIME_MS);
+        }
+    }
+
+    public void loadPlayerPositions(DotSimulation dotSimulation) {
         if(dotSimulation != null) {
             final int numPlayers = gClientInfos.size();
 
             for(int i = 0; i < numPlayers; i++) {
                 final ClientInfo clientInfo = gClientInfos.get(i);
                 dotSimulation.setPlayerPosition(i, clientInfo.getX(), clientInfo.getY());
-            }
-        }
-    }
-
-    public void step(DotSimulation dotSimulation, boolean isServer) {
-        if(isServer) {
-            gStepNumber++;
-        }
-
-        if(dotSimulation != null) {
-            if(dotSimulation.getStepNumber() < gStepNumber) {
-                dotSimulation.step();
             }
         }
     }
