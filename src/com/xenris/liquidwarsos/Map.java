@@ -20,13 +20,15 @@ package com.xenris.liquidwarsos;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import java.io.*;
 import javax.microedition.khronos.opengles.GL10;
 
 public class Map {
     private final int gId;
     private final Context gContext;
-    private Bitmap gBitmap;
+    private Bitmap gMapBitmap;
+    private Bitmap gImageBitmap;
     private final int gWidth;
     private final int gHeight;
 
@@ -34,17 +36,47 @@ public class Map {
         gId = id;
         gContext = context;
 
+        loadMap();
+        loadImage();
+
+        final Bitmap bitmap = (gMapBitmap != null) ? gMapBitmap : gImageBitmap;
+
+        gWidth = bitmap.getWidth();
+        gHeight = bitmap.getHeight();
+    }
+
+    private void loadMap() {
         InputStream inputStream = null;
 
         try {
-            inputStream = gContext.getAssets().open(toAssetPath(id));
+            inputStream = gContext.getAssets().open(toMapPath(gId));
         } catch(IOException e) {
-            Log.message("Failed to open asset named " + toAssetPath(id));
+            gMapBitmap = null;
+            return;
         }
 
-        gBitmap = BitmapFactory.decodeStream(inputStream);
-        gWidth = gBitmap.getWidth();
-        gHeight = gBitmap.getHeight();
+        gMapBitmap = BitmapFactory.decodeStream(inputStream);
+
+        try {
+            inputStream.close();
+        } catch(IOException e) { }
+    }
+
+    private void loadImage() {
+        InputStream inputStream = null;
+
+        try {
+            inputStream = gContext.getAssets().open(toImagePath(gId));
+        } catch(IOException e) {
+            gImageBitmap = null;
+            return;
+        }
+
+        gImageBitmap = BitmapFactory.decodeStream(inputStream);
+
+        try {
+            inputStream.close();
+        } catch(IOException e) { }
     }
 
     public boolean[] createWallMap() {
@@ -53,7 +85,13 @@ public class Map {
         int i = 0;
         for(int y = 0; y < gHeight; y++) {
             for(int x = 0; x < gWidth; x++) {
-                result[i] = isWhite(gBitmap.getPixel(x, y));
+                if(gMapBitmap != null) {
+                    final int pixel = gMapBitmap.getPixel(x, y);
+                    final int mid = 0xff / 2;
+                    result[i] = Color.alpha(pixel) > mid;
+                } else {
+                    result[i] = false;
+                }
                 i++;
             }
         }
@@ -61,22 +99,17 @@ public class Map {
         return result;
     }
 
-    private boolean isWhite(int pixel) {
-        final int red = (pixel & 0xff0000) >> 16;
-        final int green = (pixel & 0x00ff00) >> 8;
-        final int blue = (pixel & 0x0000ff) >> 0;
-
-        final int mid = 0xff / 6;
-
-        return (red > mid) && (green > mid) && (blue > mid);
-    }
-
     public Sprite createSprite(GL10 gl) {
-        return new Sprite(gl, gBitmap);
+        final Bitmap bitmap = (gImageBitmap != null) ? gImageBitmap : gMapBitmap;
+        return new Sprite(gl, bitmap);
     }
 
-    public static String toAssetPath(int id) {
+    public static String toMapPath(int id) {
         return "maps/" + id + "-map.png";
+    }
+
+    public static String toImagePath(int id) {
+        return "maps/" + id + "-image.png";
     }
 
     public int getWidth() {
