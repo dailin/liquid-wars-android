@@ -65,6 +65,8 @@ public class Client extends BaseActivity
     private long backButtonPreviousTime = 0;
     private boolean backButtonMessageHasBeenShown = false;
 
+    private boolean enableBluetoothMessageHasBeenShow = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -266,11 +268,22 @@ public class Client extends BaseActivity
 
             gBluetooth.startSharing(gServer, callbacks);
         } else {
-            Toast.makeText(this, "Enable bluetooth first", Toast.LENGTH_SHORT).show();
+            if(!enableBluetoothMessageHasBeenShow) {
+                Toast.makeText(this, "Enable bluetooth first", Toast.LENGTH_SHORT).show();
+                enableBluetoothMessageHasBeenShow = true;
+            }
         }
     }
 
     private void find() {
+        if(!gBluetooth.isBluetoothEnabled()) {
+            if(!enableBluetoothMessageHasBeenShow) {
+                Toast.makeText(this, "Enable bluetooth first", Toast.LENGTH_SHORT).show();
+                enableBluetoothMessageHasBeenShow = true;
+            }
+            return;
+        }
+
         final ServerFinderDialog.Callbacks callbacks = new ServerFinderDialog.Callbacks() {
             @Override
             public void onServerSelected(ServerFinderDialog dialog, BluetoothDevice device) {
