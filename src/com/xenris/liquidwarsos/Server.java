@@ -155,4 +155,8 @@ public class Server extends Thread {
     public DotSimulation getDotSimulation() {
         return gDotSimulation;
     }
+
+    public void setMap(int mapId) {
+        gGameState.setMapId(mapId);
+    }
 }

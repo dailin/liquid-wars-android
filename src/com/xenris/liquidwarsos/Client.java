@@ -67,6 +67,9 @@ public class Client extends BaseActivity
 
     private boolean enableBluetoothMessageHasBeenShow = false;
 
+    private int gCurrentMapId = 0;
+    private Bitmap gMapBitmap;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -137,6 +140,13 @@ public class Client extends BaseActivity
                     final ClientInfo tempMe = gameState.findClientInfoById(gMe.getId());
                     setPlayerColorView(tempMe.getColor());
                     gameState.updatePlayersList(gPlayerListView);
+                    gCurrentMapId = gameState.getMapId();
+                    final ImageView imageView = (ImageView)findViewById(R.id.map_imageview);
+                    if(gMapBitmap != null) {
+                        gMapBitmap.recycle();
+                    }
+                    gMapBitmap = MapSelectorView.loadBitmap(Client.this, gCurrentMapId);
+                    imageView.setImageBitmap(gMapBitmap);
             }
 
             return true;
@@ -168,6 +178,8 @@ public class Client extends BaseActivity
             gMe.setReady(ready);
         } else if(id == R.id.player_color_view) {
             changeColor();
+        } else if(id == R.id.map_imageview) {
+            changeMap();
         }
     }
 
@@ -330,6 +342,26 @@ public class Client extends BaseActivity
         final int dialogSize = (int)(smallSide * 0.8);
         ColorPickerDialog colorPickerDialog = new ColorPickerDialog(this, currentColor, dialogSize, listener);
         colorPickerDialog.show();
+    }
+
+    public void changeMap() {
+        // Only have control over the map if this client started this game.
+        if(gServer == null) {
+            return;
+        }
+
+        MapSelectorView.MapSelectorCallbacks callback = new MapSelectorView.MapSelectorCallbacks() {
+                @Override
+                public void onChange(int mapId) {
+                    gServer.setMap(mapId);
+                }
+            };
+        Rect displayRectangle = new Rect();
+        getWindow().getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
+        final int w = (int)(displayRectangle.width() * 0.8);
+        final int h = (int)(displayRectangle.height() * 0.8);
+        final MapSelectorDialog mapSelectorDialog = new MapSelectorDialog(this, callback, w, h, gCurrentMapId);
+        mapSelectorDialog.show();
     }
 
     @Override

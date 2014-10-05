@@ -123,7 +123,7 @@ android:background="#000">
             android:layout_margin="20dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@+drawable/map_10"
+            android:src="@+drawable/random_map"
             android:onClick="buttonHandler"/>
 
         </LinearLayout>
