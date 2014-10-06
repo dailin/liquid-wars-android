@@ -45,7 +45,7 @@ public class Server extends Thread {
 
             sendGameState();
 
-//            if(gGameState.state() == GameState.MAIN_MENU) {
+//            if(gGameState.state() == GameState.GAME_MENU) {
                 // FIXME Need to be able to remove closed connections at all times
                 //  but only remove players when the game isn't in play.
                 removeClosedConnections();
@@ -71,7 +71,7 @@ public class Server extends Thread {
             gGameState.state(GameState.IN_PLAY);
 
             Util.sleep(Constants.STEP_TIME_MS * Constants.STEP_MULTIPLIER);
-        } else if(state == GameState.MAIN_MENU) {
+        } else if(state == GameState.GAME_MENU) {
             if(gDotSimulation != null) {
                 gDotSimulation.delete();
                 gDotSimulation = null;

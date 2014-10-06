@@ -196,7 +196,7 @@ public class Client extends BaseActivity
 
             final int state = gameState.state();
 
-            if(state == GameState.MAIN_MENU) {
+            if(state == GameState.GAME_MENU) {
                 if(!gameMenuIsVisible()) {
                     uiHandler.sendEmptyMessage(Constants.SWITCH_TO_GAME_MENU);
                 }

@@ -22,12 +22,12 @@ import java.io.*;
 import java.util.*;
 
 public class GameState {
-    public static final int MAIN_MENU = 1; // TODO Change this to GAME_MENU.
+    public static final int GAME_MENU = 1;
     public static final int COUNTDOWN = 2;
     public static final int IN_PLAY = 3;
 
     private ArrayList<ClientInfo> gClientInfos;
-    private int gState = MAIN_MENU;
+    private int gState = GAME_MENU;
     private long gStepNumber = 0;
     private int gMapId = 0;
 
