@@ -44,11 +44,6 @@ public class Client extends BaseActivity
     private boolean gRunning;
     private Thread gGameThread;
 
-    // XXX XXX XXX
-    // Put game touch state here and use to send to server and draw positional info.
-    //  Could also be called PlayerState or LocalPlayerState or something.
-//    private TouchInfo gTouchInfo = new TouchInfo();
-
     private View gMenuView;
     private PlayerListView gPlayerListView;
     private GLSurfaceView gGLSurfaceView;
