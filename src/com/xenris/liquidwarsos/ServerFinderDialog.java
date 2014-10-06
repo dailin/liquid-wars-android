@@ -45,11 +45,11 @@ public class ServerFinderDialog extends AlertDialog
         gBluetooth = bluetooth;
 
         if(bluetooth.isBluetoothEnabled()) {
-            setTitle("Searching...");
+            setTitle(context.getResources().getString(R.string.searching));
             setupDialog(context);
             bluetooth.startSearching(this);
         } else {
-            setTitle("Enable bluetooth first");
+            setTitle(context.getResources().getString(R.string.enable_bluetooth_first));
         }
     }
 

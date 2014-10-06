@@ -85,7 +85,7 @@ android:background="#000">
                 android:id="@+id/share_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Share"
+                android:text="@string/share"
                 android:onClick="buttonHandler"/>
 
                 <!--Find button-->
@@ -93,7 +93,7 @@ android:background="#000">
                 android:id="@+id/find_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Find"
+                android:text="@string/find"
                 android:onClick="buttonHandler"/>
 
                 <!--Ready button-->
@@ -101,8 +101,8 @@ android:background="#000">
                 android:id="@+id/ready_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textOn="Start"
-                android:textOff="Start"
+                android:textOn="@string/ready"
+                android:textOff="@string/ready"
                 android:onClick="buttonHandler"/>
 
             </LinearLayout>

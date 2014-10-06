@@ -276,7 +276,7 @@ public class Client extends BaseActivity
             gBluetooth.startSharing(gServer, callbacks);
         } else {
             if(!enableBluetoothMessageHasBeenShow) {
-                Toast.makeText(this, "Enable bluetooth first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getResources().getString(R.string.enable_bluetooth_first), Toast.LENGTH_SHORT).show();
                 enableBluetoothMessageHasBeenShow = true;
             }
         }
@@ -285,7 +285,7 @@ public class Client extends BaseActivity
     private void find() {
         if(!gBluetooth.isBluetoothEnabled()) {
             if(!enableBluetoothMessageHasBeenShow) {
-                Toast.makeText(this, "Enable bluetooth first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getResources().getString(R.string.enable_bluetooth_first), Toast.LENGTH_SHORT).show();
                 enableBluetoothMessageHasBeenShow = true;
             }
             return;
