@@ -26,22 +26,18 @@ public class GameState {
     public static final int COUNTDOWN = 2;
     public static final int IN_PLAY = 3;
 
-    private ArrayList<ClientInfo> gClientInfos;
+    private ArrayList<ClientInfo> gClientInfos = new ArrayList<ClientInfo>();
     private int gState = GAME_MENU;
     private long gStepNumber = 0;
     private int gMapId = 0;
 
-    public GameState() {
-        gClientInfos = new ArrayList<ClientInfo>();
-    }
-
-    public GameState(DataInputStream dataInputStream) throws IOException {
-        gClientInfos = new ArrayList<ClientInfo>();
-
+    public void read(DataInputStream dataInputStream) throws IOException {
         final int playerCount = dataInputStream.readInt();
 
-        for(int i = 0; i < playerCount; i++) {
-            gClientInfos.add(new ClientInfo(dataInputStream));
+        resizeClientInfos(playerCount);
+
+        for(ClientInfo playerState : gClientInfos) {
+            playerState.read(dataInputStream);
         }
 
         gState = dataInputStream.readInt();
@@ -59,6 +55,20 @@ public class GameState {
         dataOutputStream.writeInt(gState);
         dataOutputStream.writeLong(gStepNumber);
         dataOutputStream.writeInt(gMapId);
+    }
+
+    private void resizeClientInfos(int newSize) {
+        if(newSize < 0) {
+            return;
+        }
+
+        while(newSize > gClientInfos.size()) {
+            gClientInfos.add(new ClientInfo());
+        }
+
+        while(newSize < gClientInfos.size()) {
+            gClientInfos.remove(gClientInfos.size() - 1);
+        }
     }
 
     public void addClientInfo(int id) {
@@ -98,6 +108,8 @@ public class GameState {
         }
     }
 
+    private long previous;
+
     public void step(DotSimulation dotSimulation, boolean isServer) {
         loadPlayerPositions(dotSimulation);
         for(int i = 0; i < Constants.STEP_MULTIPLIER; i++) {
@@ -107,6 +119,12 @@ public class GameState {
 
             if(dotSimulation != null) {
                 if(dotSimulation.getStepNumber() < gStepNumber) {
+                    if(!isServer) {
+                        final long current = System.currentTimeMillis();
+                        final long diff = current - previous;
+                        previous = current;
+                        Log.message(diff + "");
+                    }
                     dotSimulation.step();
                 }
             }
@@ -163,5 +181,15 @@ public class GameState {
 
     public void setMapId(int mapId) {
         gMapId = mapId;
+    }
+
+    public boolean everyoneIsReady() {
+        for(ClientInfo clientInfo : gClientInfos) {
+            if(!clientInfo.isReady()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

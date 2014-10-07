@@ -21,28 +21,24 @@ import android.graphics.*;
 import java.io.*;
 
 public class ClientInfo {
-    private static final Paint gPaint = new Paint();
-    private int gId;
+    private boolean gActive = false;
+    private int gId = -1;
     private float gX = 0.5f;
     private float gY = 0.5f;
-    private int gColor;
+    private int gColor = Color.BLACK;
     private boolean gReady = false;
-    private boolean gIsClients = false;
+
+    public ClientInfo() {
+    }
 
     public ClientInfo(int id) {
         gId = id;
-        gColor = Color.BLUE;
+        gColor = Color.BLACK;
     }
 
     public ClientInfo(int id, int color) {
         gId = id;
         gColor = color;
-    }
-
-    public ClientInfo(int id, int color, boolean isClients) {
-        gId = id;
-        gColor = color;
-        gIsClients = isClients;
     }
 
     public int getId() {
@@ -95,7 +91,7 @@ public class ClientInfo {
         }
     }
 
-    public ClientInfo(DataInputStream dataInputStream) throws IOException {
+    public void read(DataInputStream dataInputStream) throws IOException {
         synchronized(this) {
             gId = dataInputStream.readInt();
             gX = dataInputStream.readFloat();

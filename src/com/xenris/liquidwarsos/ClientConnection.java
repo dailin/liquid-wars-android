@@ -19,12 +19,10 @@ package com.xenris.liquidwarsos;
 
 import java.io.*;
 
-public class ClientConnection extends Thread {
-    private int gConnectionId;
+public class ClientConnection {
+    private int gId;
     private DataOutputStream gDataOutputStream;
     private DataInputStream gDataInputStream;
-    private ClientInfo gClientInfoA;
-    private ClientInfo gClientInfoB;
     private boolean gIsClosed = false;
 
     public ClientConnection() {
@@ -35,61 +33,29 @@ public class ClientConnection extends Thread {
     }
 
     public void init(OutputStream outputStream, InputStream inputStream) {
-        gConnectionId = Util.getNextId();
+        gId = Util.getNextId();
 
         gDataOutputStream = new DataOutputStream(outputStream);
         gDataInputStream = new DataInputStream(inputStream);
 
         try {
-            gDataOutputStream.writeInt(gConnectionId);
+            gDataOutputStream.writeInt(gId);
         } catch (IOException e) {
             Log.message(Log.tag, "Error: failed to write connection ID in ClientConnection");
             return;
         }
-
-        start();
     }
 
-    @Override
-    public void run() {
-        setName("ClientConnection");
-
-        while(true) {
-            try {
-                gClientInfoB = new ClientInfo(gDataInputStream);
-            } catch (IOException e) {
-                break;
-            }
-
-            shiftClientInfos();
-        }
-
-        close();
+    public void receive(ClientInfo clientInfo) throws IOException {
+        clientInfo.read(gDataInputStream);
     }
 
-    public ClientInfo getClientInfo() {
-        synchronized (this) {
-            return gClientInfoA;
-        }
+    public void send(GameState gameState) throws IOException {
+        gameState.write(gDataOutputStream);
     }
 
-    private void shiftClientInfos() {
-        synchronized (this) {
-            gClientInfoA = gClientInfoB;
-            gClientInfoB = null;
-        }
-    }
-
-    public void sendGameState(GameState gameState) {
-        try {
-            gameState.write(gDataOutputStream);
-        } catch (IOException e) {
-            Log.message(Log.tag, "Error: failed to send game state in ClientConnection");
-        }
-    }
-
-    public int getConnectionId() {
-        return gConnectionId;
+    public int getId() {
+        return gId;
     }
 
     public void close() {

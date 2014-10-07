@@ -55,9 +55,14 @@ public class Server extends Thread {
 
     private void getClientInfo() {
         for(ClientConnection clientConnection : gClientConnections) {
-            final ClientInfo clientInfo = clientConnection.getClientInfo();
+            final int id = clientConnection.getId();
+            final ClientInfo clientInfo = gGameState.findClientInfoById(id);
             if(clientInfo != null) {
-                gGameState.updateClientInfo(clientInfo);
+                try {
+                    clientConnection.receive(clientInfo);
+                } catch(IOException e) {
+                    // Ignore if connection is closed.
+                }
             }
         }
     }
@@ -77,19 +82,7 @@ public class Server extends Thread {
                 gDotSimulation = null;
             }
 
-            // Check if everyone is ready to start the game.
-            boolean everyoneIsReady = true;
-
-            for(ClientConnection clientConnection : gClientConnections) {
-                final ClientInfo clientInfo = clientConnection.getClientInfo();
-                if(clientInfo != null) {
-                    everyoneIsReady = everyoneIsReady && clientInfo.isReady();
-                } else {
-                    everyoneIsReady = false;
-                }
-            }
-
-            if(everyoneIsReady) {
+            if(gGameState.everyoneIsReady()) {
                 gGameState.state(GameState.COUNTDOWN);
                 final int playerCount = gGameState.getPlayerCount();
                 final int[] colors = gGameState.getTeamColors();
@@ -105,24 +98,21 @@ public class Server extends Thread {
 
     public void sendGameState() {
         for(ClientConnection clientConnection : gClientConnections) {
-            clientConnection.sendGameState(gGameState);
+            try {
+                clientConnection.send(gGameState);
+            } catch(IOException e) {
+                clientConnection.close();
+            }
         }
     }
 
     public void removeClosedConnections() {
-        ClientConnection toRemove = null;
+        final Iterator iterator = gClientConnections.iterator();
 
-        for(ClientConnection clientConnection : gClientConnections) {
-            if(clientConnection.isClosed()) {
-                toRemove = clientConnection;
-                break;
+        while(iterator.hasNext()) {
+            if(((ClientConnection)iterator.next()).isClosed()) {
+                iterator.remove();
             }
-        }
-
-        if(toRemove != null) {
-            gGameState.removeClientInfo(toRemove.getConnectionId());
-            gClientConnections.remove(toRemove);
-            toRemove.close();
         }
     }
 
@@ -147,7 +137,7 @@ public class Server extends Thread {
     }
 
     public void addClientConnection(ClientConnection clientConnection) {
-        final int id = clientConnection.getConnectionId();
+        final int id = clientConnection.getId();
         gGameState.addClientInfo(id);
         gClientConnections.add(clientConnection);
     }

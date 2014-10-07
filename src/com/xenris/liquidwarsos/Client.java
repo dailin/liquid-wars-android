@@ -30,6 +30,7 @@ import android.widget.ToggleButton;
 import com.xenris.liquidwarsos.Bluetooth.CreateConnectionCallbacks;
 import com.xenris.liquidwarsos.ColorPickerDialog.ColorPickerListener;
 import java.util.*;
+import java.io.*;
 
 public class Client extends BaseActivity
     implements
@@ -84,10 +85,8 @@ public class Client extends BaseActivity
 
         gServer = new Server(this);
         gServerConnection = gServer.createConnection();
-        gServerConnection.start();
         gServer.start();
-        gMe = new ClientInfo(gServerConnection.getConnectionId(), ColorUtil.randomColor(), true);
-        gServerConnection.setClientInfoToSend(gMe);
+        gMe = new ClientInfo(gServerConnection.getId(), ColorUtil.randomColor());
         gRenderer.setClientInfoToDraw(gMe);
 
         gGameThread = new Thread(this);
@@ -133,7 +132,9 @@ public class Client extends BaseActivity
                 case Constants.UPDATE_UI:
                     final GameState gameState = (GameState)message.obj;
                     final ClientInfo tempMe = gameState.findClientInfoById(gMe.getId());
-                    setPlayerColorView(tempMe.getColor());
+                    if(tempMe != null) {
+                        setPlayerColorView(tempMe.getColor());
+                    }
                     gameState.updatePlayersList(gPlayerListView);
                     gCurrentMapId = gameState.getMapId();
                     final ImageView imageView = (ImageView)findViewById(R.id.map_imageview);
@@ -181,18 +182,19 @@ public class Client extends BaseActivity
     @Override
     public void run() {
         gRunning = true;
-        GameState gameState = null;
+        final GameState gameState = new GameState();
         final MyApplication application = (MyApplication)getApplication();
         final Handler uiHandler = application.getUiHandler();
 
-        while(gRunning) {
-            gameState = gServerConnection.getNextGameState();
-            if(gameState == null) {
-                Thread.yield();
-                continue;
-            }
+        gRenderer.setGameStateToDraw(gameState);
 
-            gRenderer.setGameStateToDraw(gameState);
+        while(gRunning) {
+            try {
+                gServerConnection.send(gMe);
+                gServerConnection.receive(gameState);
+            } catch(IOException e) {
+                // TODO Probably show connection error message and exit.
+            }
 
             final int state = gameState.state();
 
@@ -229,9 +231,6 @@ public class Client extends BaseActivity
                     gameState.step(gDotSimulation, false);
                 }
             }
-
-            Thread.yield();
-//            Util.sleep(15); // XXX Bad time regulation.
         }
 
         if(gDotSimulation != null) {
@@ -365,9 +364,7 @@ public class Client extends BaseActivity
 
         gServerConnection.close();
         gServerConnection = bluetoothServerConnection;
-        gServerConnection.start();
-        gMe.setId(gServerConnection.getConnectionId());
-        gServerConnection.setClientInfoToSend(gMe);
+        gMe.setId(gServerConnection.getId());
         gRenderer.setClientInfoToDraw(gMe);
 
         final MyApplication application = (MyApplication)getApplication();

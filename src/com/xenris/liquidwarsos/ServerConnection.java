@@ -21,13 +21,9 @@ import java.io.*;
 import java.util.*;
 
 public class ServerConnection {
-    private int gConnectionId;
+    private int gId;
     private DataOutputStream gDataOutputStream;
     private DataInputStream gDataInputStream;
-    private LinkedList<GameState> gGameStateQueue = new LinkedList<GameState>();
-    private ClientInfo gClientInfo;
-    private ReceivingThread gReceivingThread;
-    private SendingThread gSendingThread;
 
     public ServerConnection() {
     }
@@ -41,29 +37,15 @@ public class ServerConnection {
         gDataInputStream = new DataInputStream(inputStream);
 
         try {
-            gConnectionId = gDataInputStream.readInt();
+            gId = gDataInputStream.readInt();
         } catch (IOException e) {
             Log.message(Log.tag, "Error: failed to get connection ID in ServerConnection");
             return;
         }
     }
 
-    public void start() {
-        gReceivingThread = new ReceivingThread();
-        gSendingThread = new SendingThread();
-
-        gReceivingThread.start();
-        gSendingThread.start();
-    }
-
-    public void setClientInfoToSend(ClientInfo clientInfo) {
-        synchronized(this) {
-            gClientInfo = clientInfo;
-        }
-    }
-
-    public int getConnectionId() {
-        return gConnectionId;
+    public int getId() {
+        return gId;
     }
 
     public void close() {
@@ -71,54 +53,11 @@ public class ServerConnection {
         Util.close(gDataInputStream);
     }
 
-    public GameState getNextGameState() {
-        synchronized(gGameStateQueue) {
-            return gGameStateQueue.poll();
-        }
+    public void receive(GameState gameState) throws IOException {
+        gameState.read(gDataInputStream);
     }
 
-    private class ReceivingThread extends Thread {
-        @Override
-        public void run() {
-            setName("ServerConnection ReceivingThread");
-
-            while(true) {
-                GameState gameState = null;
-
-                try {
-                    gameState = new GameState(gDataInputStream);
-                } catch (IOException e) {
-                    break;
-                }
-
-                synchronized(gGameStateQueue) {
-                    gGameStateQueue.add(gameState);
-                }
-            }
-
-            close();
-        }
-    }
-
-    // Send ten times per second.
-    private class SendingThread extends Thread {
-        @Override
-        public void run() {
-            setName("ServerConnection SendingThread");
-
-            while(true) {
-                try {
-                    if(gClientInfo != null) {
-                        synchronized(this) {
-                            gClientInfo.write(gDataOutputStream);
-                        }
-                    }
-                } catch (IOException e) {
-        //            Log.message(Log.tag, "Error: failed to send player state in ServerConnection");
-                }
-
-                Util.sleep(100);
-            }
-        }
+    public void send(ClientInfo clientInfo) throws IOException {
+        clientInfo.write(gDataOutputStream);
     }
 }
